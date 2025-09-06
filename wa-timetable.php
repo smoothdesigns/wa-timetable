@@ -430,8 +430,6 @@ function wa_timetable_enqueue_scripts() {
 
 }
 
----
-
 /**
  * Handles automatic updates for the plugin from a GitHub repository.
  *
