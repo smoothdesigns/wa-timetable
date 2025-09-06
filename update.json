@@ -1,0 +1,15 @@
+{
+"version": "1.8.1",
+"download_url": "https://www.google.com/search?q=https://github.com/smoothdeisgns/wa-timetable/releases/download/v1.8.1/wa-timetable.zip",
+"requires": "5.3",
+"tested": "6.0",
+"requires_php": "7.2",
+"banners": {
+"low": "",
+"high": ""
+},
+"sections": {
+"description": "This is a new version of the WA Timetable plugin with various improvements.",
+"changelog": "<ul><li>Updated the plugin with a new version number.</li><li>Added a new feature for automatic updates from GitHub.</li></ul>"
+}
+}
