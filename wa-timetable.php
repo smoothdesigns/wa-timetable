@@ -436,26 +436,8 @@ function wa_timetable_enqueue_scripts() {
  * This code block is a self-contained updater that allows WordPress to check a
  * GitHub repository for new releases and handle the update process.
  *
- * To use this, you must have a JSON file in your GitHub repository
- * (e.g., `https://raw.githubusercontent.com/thomasmirmo/wa-timetable/main/update.json`)
- * with the following format:
- *
- * {
- * "version": "1.8.1",
- * "download_url": "https://github.com/thomasmirmo/wa-timetable/archive/refs/tags/v1.8.1.zip",
- * "requires": "5.3",
- * "tested": "6.0",
- * "requires_php": "7.2",
- * "banners": {
- * "low": "https://example.com/banner-low.png",
- * "high": "https://example.com/banner-high.png"
- * },
- * "sections": {
- * "description": "A new version of the WA Timetable plugin with new features and bug fixes.",
- * "changelog": "<ul><li>Feature: Added a new setting.</li><li>Fix: Fixed a bug.</li></ul>"
- * }
- * }
  */
+
 class WA_Timetable_Updater {
 
     private $plugin_file;
@@ -559,3 +541,4 @@ class WA_Timetable_Updater {
 
 $github_updater = new WA_Timetable_Updater(__FILE__, 'smoothdeisgns', 'wa-timetable');
 $github_updater->init();
+
