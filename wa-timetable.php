@@ -115,9 +115,21 @@ class WAGitHubUpdater {
     $json = wp_remote_retrieve_body($response);
     $data = json_decode($json);
 
+    // Fetch the last updated date from the GitHub API.
+    $last_updated = '';
+    $commit_api_url = 'https://api.github.com/repos/smoothdeisgns/wa-timetable/commits?path=info.json&per_page=1';
+    $commit_response = wp_remote_get($commit_api_url);
+    if (!is_wp_error($commit_response) && wp_remote_retrieve_response_code($commit_response) === 200) {
+      $commit_data = json_decode(wp_remote_retrieve_body($commit_response), true);
+      if (is_array($commit_data) && !empty($commit_data)) {
+        $date_string = $commit_data[0]['commit']['author']['date'];
+        $last_updated = date('Y-m-d H:i:s', strtotime($date_string));
+      }
+    }
+
     // If the data is valid, format it for WordPress.
     if ($data) {
-      $plugin_info = get_plugin_data($this->plugin_file);
+      // Create a new object to match the expected format for WordPress.
       $new_result = (object) [
         'slug' => $data->slug,
         'plugin_name' => $data->name,
@@ -130,16 +142,18 @@ class WAGitHubUpdater {
         'requires_php' => $data->requires_php,
         'download_link' => $data->download_url,
         'trunk' => $data->download_url,
-        'last_updated' => '', // This can be fetched from the GitHub API if needed.
+        'last_updated' => $last_updated,
         'sections' => (array) $data->sections,
-        'banners' => [
-          'low' => 'https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/low-res-banner.png',
-          'high' => 'https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/high-res-banner.png',
+        'banners' => (object) [
+          'low' => 'https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/banner-772x250.png',
+          'high' => 'https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/banner-1544x500.png',
         ],
         'external' => true,
       ];
+
       return $new_result;
     }
+
     return $result;
   }
 }
@@ -347,7 +361,7 @@ function process_event_timetable_data($data, $event_name_url_slug) {
   $conversion_timezone_string = get_option('wa_conversion_timezone', 'America/Jamaica');
   $morning_session_name_option = get_option('wa_morning_session_name', 'Morning Session (Jamaica)');
   $evening_session_name_option = get_option('wa_evening_session_name', 'Evening Session (Jamaica)');
-  $afternoon_session_name_option = get_option('wa_afternmon_session_name', '');
+  $afternoon_session_name_option = get_option('wa_afternoon_session_name', '');
   $days = [];
   $day_keys = [];
   foreach ($event_timetable as $event) {
