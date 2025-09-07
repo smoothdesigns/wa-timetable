@@ -9,7 +9,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:         WA Timetable (Tokyo 2025)
- * Plugin URI:          #
+ * Plugin URI:          https://github.com/smoothdeisgns/wa-timetable
  * Description:         Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.
  * Version:             1.8.2
  * Requires at least:   5.3
@@ -541,5 +541,6 @@ class WA_Timetable_Updater {
 
 $github_updater = new WA_Timetable_Updater(__FILE__, 'smoothdeisgns', 'wa-timetable');
 $github_updater->init();
+
 
 
