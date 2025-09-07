@@ -1,23 +1,27 @@
 {
-  "name": "WA Timetable (Tokyo 2025)",
-  "slug": "wa-timetable",
-  "version": "2.0.2",
-  "author": "Thomas Mirmo",
-  "author_profile": "https://github.com/smoothdeisgns",
-  "homepage": "https://github.com/smoothdeisgns/wa-timetable",
-  "requires": "5.3",
-  "tested": "6.0",
-  "requires_php": "7.2",
-  "download_url": "https://github.com/smoothdeisgns/wa-timetable/releases/download/v2.0.2/wa-timetable.zip",
-  "sections": {
-    "description": "Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.",
-    "changelog": "### 2.0.2\n* Switched to self-contained GitHub updater class.\n* Removed external dependency to `plugin-update-checker` library.",
-    "installation": "1. Download the plugin ZIP file.\n2. In your WordPress admin dashboard, navigate to `Plugins > Add New > Upload Plugin`.\n3. Upload the ZIP file and activate the plugin.",
-    "screenshots": [
-      {
-        "src": "https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/screenshot-1.png",
-        "caption": "Screenshot of the timetable displayed on a page."
-      }
-    ]
-  }
+    "name": "WA Timetable (Tokyo 2025)",
+    "slug": "wa-timetable",
+    "version": "2.0.2",
+    "author": "Thomas Mirmo",
+    "author_profile": "https://github.com/smoothdeisgns",
+    "homepage": "https://github.com/smoothdeisgns/wa-timetable",
+    "requires": "5.3",
+    "tested": "6.0",
+    "requires_php": "7.2",
+    "download_url": "https://github.com/smoothdeisgns/wa-timetable/releases/download/v2.0.2/wa-timetable.zip",
+    "sections": {
+        "description": "Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.",
+        "changelog": "### 2.0.2\n* Switched to self-contained GitHub updater class.\n* Removed external dependency to `plugin-update-checker` library.",
+        "installation": "1. Download the plugin ZIP file.\n2. In your WordPress admin dashboard, navigate to `Plugins > Add New > Upload Plugin`.\n3. Upload the ZIP file and activate the plugin.",
+        "screenshots": [
+            {
+                "src": "https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/screenshot-1.png",
+                "caption": "Screenshot of the timetable displayed on a page."
+            }
+        ]
+    },
+    "banners": {
+        "low": "https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/banner-772x250.png",
+        "high": "https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/banner-1544x500.png"
+    }
 }
