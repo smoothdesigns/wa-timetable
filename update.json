@@ -1,6 +1,6 @@
 {
-"version": "1.8.2",
-"download_url": "https://github.com/smoothdeisgns/wa-timetable/releases/download/v1.8.2/wa-timetable-v1.8.2.zip",
+"version": "2.0",
+"download_url": "https://github.com/smoothdeisgns/wa-timetable/releases/download/v2.0/wa-timetable-v2.0.zip",
 "requires": "5.3",
 "tested": "6.0",
 "requires_php": "7.2",
@@ -9,7 +9,7 @@
 "high": "https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/refs/heads/main/assets/high-res-banner.png"
 },
 "sections": {
-"description": "This is a new version of the WA Timetable plugin with various improvements.",
-"changelog": "<ul><li>Updated the plugin with a new version number.</li><li>Added a new feature for automatic updates from GitHub.</li></ul>"
+"description": "This is a major update to the WA Timetable plugin that includes a new automatic update feature from GitHub. The plugin header has also been updated to reflect the new GitHub repository URL.",
+"changelog": "<ul><li>Major version update to 2.0.</li><li>Added automatic updates from GitHub.</li><li>Updated plugin URI in the plugin header.</li></ul>"
 }
 }
