@@ -11,7 +11,7 @@
  * Plugin Name:         WA Timetable (Tokyo 2025)
  * Plugin URI:          https://github.com/smoothdeisgns/wa-timetable
  * Description:         Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.
- * Version:             2.0
+ * Version:             2.0.1
  * Requires at least:   5.3
  * Requires PHP:        7.2
  * Author:              Thomas Mirmo (I am Mr Smooth)
@@ -25,19 +25,121 @@ if (!defined('ABSPATH')) {
   exit;
 }
 
-// GitHub Updater
-require 'plugin-update-checker-4.13/plugin-update-checker.php';
+/**
+ * Handles the GitHub-based plugin updates.
+ * This class fetches update information from a `info.json` file on the GitHub repository.
+ * It hooks into WordPress's plugin update transient to check for and apply updates.
+ */
+class WAGitHubUpdater {
 
-use YahnisElshazly\PluginUpdateChecker\v4\PucFactory;
+  /**
+   * @var string The GitHub API endpoint for the plugin's repository.
+   */
+  private $github_api_url;
 
-$myUpdateChecker = PucFactory::buildUpdateChecker(
-  'https://github.com/smoothdeisgns/wa-timetable/main/update.json',
-  __FILE__,
-  'wa-timetable'
-);
+  /**
+   * @var string The plugin's main file path.
+   */
+  private $plugin_file;
+
+  /**
+   * @var string The slug used to identify the plugin.
+   */
+  private $plugin_slug;
+
+  /**
+   * Constructor to initialize the updater.
+   *
+   * @param string $plugin_file The main plugin file path.
+   * @param string $github_repo_url The URL of the GitHub repository.
+   */
+  public function __construct($plugin_file, $github_repo_url) {
+    $this->plugin_file = $plugin_file;
+    $this->plugin_slug = basename(dirname($plugin_file));
+    $this->github_api_url = $github_repo_url;
+
+    // Add a filter to modify the plugins update transient.
+    add_filter('pre_set_site_transient_update_plugins', [$this, 'check_for_updates']);
+
+    // Add a filter to handle the plugin information display.
+    add_filter('plugins_api', [$this, 'plugin_info'], 10, 3);
+  }
+
+  /**
+   * Checks for updates by fetching the `info.json` file from the GitHub repository.
+   *
+   * @param object $transient The plugins update transient.
+   * @return object The modified transient object.
+   */
+  public function check_for_updates($transient) {
+    // Check if the transient is already set or if the plugin is not active.
+    if (empty($transient->checked) || !is_object($transient)) {
+      return $transient;
+    }
+
+    // Get the current version of the plugin.
+    $plugin_info = get_plugin_data($this->plugin_file);
+    $current_version = $plugin_info['Version'];
+
+    // Fetch the latest release information from GitHub.
+    $response = wp_remote_get(add_query_arg('callback', '?', $this->github_api_url . '/info.json'));
+    if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+      return $transient;
+    }
+
+    $json = wp_remote_retrieve_body($response);
+    $data = json_decode($json, true);
+
+    if ($data && version_compare($current_version, $data['version'], '<')) {
+      // If a newer version is available, add it to the transient.
+      $transient->response[$this->plugin_slug . '/' . basename($this->plugin_file)] = (object) [
+        'slug' => $this->plugin_slug,
+        'new_version' => $data['version'],
+        'url' => $this->github_api_url,
+        'package' => $data['download_url'],
+      ];
+    }
+
+    return $transient;
+  }
+
+  /**
+   * Provides detailed plugin information for the update screen.
+   *
+   * @param false|object|array $result The result object or false.
+   * @param string $action The API action.
+   * @param object $args The API arguments.
+   * @return false|object|array The result object or false.
+   */
+  public function plugin_info($result, $action, $args) {
+    if ($action !== 'plugin_information' || !isset($args->slug) || $args->slug !== $this->plugin_slug) {
+      return $result;
+    }
+
+    $response = wp_remote_get(add_query_arg('callback', '?', $this->github_api_url . '/info.json'));
+    if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+      return $result;
+    }
+
+    $json = wp_remote_retrieve_body($response);
+    $data = json_decode($json, true);
+
+    if ($data) {
+      return (object) $data;
+    }
+
+    return $result;
+  }
+}
+
+// Instantiate the updater class.
+new WAGitHubUpdater(__FILE__, 'https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main');
 
 // Settings page function
 add_action('admin_menu', 'wa_timetable_settings_page');
+/**
+ * Adds the settings page to the WordPress admin menu.
+ */
 function wa_timetable_settings_page() {
   add_options_page(
     'WA Timetable Settings',
@@ -50,6 +152,12 @@ function wa_timetable_settings_page() {
 
 // Add settings link to the plugin actions
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'wa_timetable_add_settings_link');
+/**
+ * Adds a "Settings" link to the plugin's action links on the plugins page.
+ *
+ * @param array $links The array of plugin action links.
+ * @return array The modified array of links.
+ */
 function wa_timetable_add_settings_link($links) {
   $settings_link = '<a href="options-general.php?page=wa-timetable-settings">' . __('Settings') . '</a>';
   array_unshift($links, $settings_link);
@@ -57,11 +165,17 @@ function wa_timetable_add_settings_link($links) {
 }
 
 // Settings page HTML
+/**
+ * Renders the HTML for the plugin's settings page.
+ */
 function wa_timetable_settings_page_html() {
+  // Check if the current user has the "manage_options" capability.
   if (!current_user_can('manage_options')) {
     return;
   }
+  // Check if the form was submitted and the nonce is valid.
   if (isset($_POST['wa_timetable_settings_nonce']) && wp_verify_nonce($_POST['wa_timetable_settings_nonce'], 'wa_timetable_settings_action')) {
+    // Sanitize and save the form data.
     $timetable_url = sanitize_url($_POST['timetable_url']);
     $timeout = intval($_POST['timeout']);
     $headers = array_map('sanitize_text_field', $_POST['headers']);
@@ -80,8 +194,10 @@ function wa_timetable_settings_page_html() {
     update_option('wa_evening_session_name', $evening_session_name);
     update_option('wa_afternoon_session_name', $afternoon_session_name);
 
+    // Display a success message.
     echo '<div class="notice notice-success is-dismissible"><p>Settings saved.</p></div>';
   }
+  // Retrieve saved settings or use default values.
   $timetable_url = get_option('wa_timetable_url', 'https://worldathletics.org/competitions/world-athletics-championships/tokyo25/timetable');
   $timeout = get_option('wa_timetable_timeout', 30);
   $headers = get_option('wa_timetable_headers', ['Time', 'Sex', 'Event', 'Round']);
@@ -146,6 +262,12 @@ function wa_timetable_settings_page_html() {
 }
 
 // Helper function to generate timezone options for the select dropdown
+/**
+ * Generates HTML `<option>` tags for all available timezones.
+ *
+ * @param string $selected The currently selected timezone.
+ * @return string The HTML string for the timezone options.
+ */
 function wa_timezone_options($selected = '') {
   $timezones = timezone_identifiers_list();
   $options = '';
@@ -156,6 +278,11 @@ function wa_timezone_options($selected = '') {
 }
 
 add_shortcode('wa_timetable', 'wa_timetable_shortcode');
+/**
+ * Shortcode to display the timetable. Fetches and processes data from World Athletics.
+ *
+ * @return string The HTML output for the timetable.
+ */
 function wa_timetable_shortcode() {
   $timetable_url = get_option('wa_timetable_url', 'https://worldathletics.org/competitions/world-athletics-championships/tokyo25/timetable');
   $timeout = get_option('wa_timetable_timeout', 30);
@@ -194,6 +321,13 @@ function wa_timetable_shortcode() {
   }
 }
 
+/**
+ * Processes the event timetable data and generates the HTML output.
+ *
+ * @param array $data The timetable data from the World Athletics website.
+ * @param string $event_name_url_slug The URL slug for the event.
+ * @return string The formatted HTML output.
+ */
 function process_event_timetable_data($data, $event_name_url_slug) {
   $event_timetable = $data['props']['pageProps']['eventTimetable'];
   $headers = get_option('wa_timetable_headers', ['Time', 'Sex', 'Event', 'Round']);
@@ -336,6 +470,9 @@ function process_event_timetable_data($data, $event_name_url_slug) {
 }
 
 add_action('wp_enqueue_scripts', 'wa_timetable_enqueue_scripts');
+/**
+ * Enqueues the necessary CSS and JavaScript files for the plugin's frontend.
+ */
 function wa_timetable_enqueue_scripts() {
   if (!wp_style_is('bootstrap', 'enqueued') && !wp_style_is('bootstrap', 'registered')) {
     wp_enqueue_style('bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css');
