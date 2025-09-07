@@ -3,7 +3,7 @@
  * WA Timetable (Tokyo 2025)
  *
  * @package             WA-Timetable
- * @author              Thomas Mirmo
+ * @author              Thomas Mirmo (I am Mr Smooth)
  * @copyright           2025 Thomas Mirmo
  * @license             GPL-2.0-or-later
  *
@@ -14,7 +14,7 @@
  * Version:             2.0.2
  * Requires at least:   5.3
  * Requires PHP:        7.2
- * Author:              Thomas Mirmo
+ * Author:              Thomas Mirmo (I am Mr Smooth)
  * Author URI:          https://github.com/smoothdeisgns
  * Text Domain:         wa-timetable
  * License:             GPL v2 or later
@@ -32,19 +32,8 @@ if (!defined('ABSPATH')) {
  */
 class WAGitHubUpdater {
 
-  /**
-   * @var string The GitHub API endpoint for the plugin's repository.
-   */
   private $github_api_url;
-
-  /**
-   * @var string The plugin's main file path.
-   */
   private $plugin_file;
-
-  /**
-   * @var string The slug used to identify the plugin.
-   */
   private $plugin_slug;
 
   /**
@@ -112,22 +101,45 @@ class WAGitHubUpdater {
    * @return false|object|array The result object or false.
    */
   public function plugin_info($result, $action, $args) {
+    // Check if this is the correct action and slug.
     if ($action !== 'plugin_information' || !isset($args->slug) || $args->slug !== $this->plugin_slug) {
       return $result;
     }
 
+    // Fetch the info.json file from the GitHub repository.
     $response = wp_remote_get(add_query_arg('callback', '?', $this->github_api_url . '/info.json'));
     if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
       return $result;
     }
 
     $json = wp_remote_retrieve_body($response);
-    $data = json_decode($json, true);
+    $data = json_decode($json);
 
+    // If the data is valid, format it for WordPress.
     if ($data) {
-      return (object) $data;
+      $plugin_info = get_plugin_data($this->plugin_file);
+      $new_result = (object) [
+        'slug' => $data->slug,
+        'plugin_name' => $data->name,
+        'name' => $data->name,
+        'version' => $data->version,
+        'author' => $data->author,
+        'author_profile' => $data->author_profile,
+        'requires' => $data->requires,
+        'tested' => $data->tested,
+        'requires_php' => $data->requires_php,
+        'download_link' => $data->download_url,
+        'trunk' => $data->download_url,
+        'last_updated' => '', // This can be fetched from the GitHub API if needed.
+        'sections' => (array) $data->sections,
+        'banners' => [
+          'low' => 'https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/low-res-banner.png',
+          'high' => 'https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/high-res-banner.png',
+        ],
+        'external' => true,
+      ];
+      return $new_result;
     }
-
     return $result;
   }
 }
@@ -335,7 +347,7 @@ function process_event_timetable_data($data, $event_name_url_slug) {
   $conversion_timezone_string = get_option('wa_conversion_timezone', 'America/Jamaica');
   $morning_session_name_option = get_option('wa_morning_session_name', 'Morning Session (Jamaica)');
   $evening_session_name_option = get_option('wa_evening_session_name', 'Evening Session (Jamaica)');
-  $afternoon_session_name_option = get_option('wa_afternoon_session_name', '');
+  $afternoon_session_name_option = get_option('wa_afternmon_session_name', '');
   $days = [];
   $day_keys = [];
   foreach ($event_timetable as $event) {
