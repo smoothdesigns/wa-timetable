@@ -5,8 +5,8 @@
 "tested": "6.0",
 "requires_php": "7.2",
 "banners": {
-"low": "",
-"high": ""
+"low": "https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/refs/heads/main/assets/low-res-banner.png",
+"high": "https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/refs/heads/main/assets/high-res-banner.png"
 },
 "sections": {
 "description": "This is a new version of the WA Timetable plugin with various improvements.",
