@@ -3,7 +3,7 @@
  * WA Timetable (Tokyo 2025)
  *
  * @package             WA-Timetable
- * @author              Thomas Mirmo (I am Mr Smooth)
+ * @author              Thomas Mirmo
  * @copyright           2025 Thomas Mirmo
  * @license             GPL-2.0-or-later
  *
@@ -14,7 +14,7 @@
  * Version:             2.0.2
  * Requires at least:   5.3
  * Requires PHP:        7.2
- * Author:              Thomas Mirmo (I am Mr Smooth)
+ * Author:              Thomas Mirmo
  * Author URI:          https://github.com/smoothdeisgns
  * Text Domain:         wa-timetable
  * License:             GPL v2 or later
