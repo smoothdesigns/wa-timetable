@@ -8,7 +8,7 @@
   "requires": "5.3",
   "tested": "6.0",
   "requires_php": "7.2",
-  "download_url": "https://github.com/smoothdeisgns/wa-timetable/releases/download/2.0.2/wa-timetable.zip",
+  "download_url": "https://github.com/smoothdeisgns/wa-timetable/releases/download/v2.0.2/wa-timetable.zip",
   "sections": {
     "description": "Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.",
     "changelog": "### 2.0.2\n* Switched to self-contained GitHub updater class.\n* Removed external dependency to `plugin-update-checker` library.",
