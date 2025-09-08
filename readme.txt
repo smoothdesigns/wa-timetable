@@ -5,7 +5,10 @@ Tags: timetable, sports, world athletics, tokyo 2025, world championships, track
 Requires at least: 5.3
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 2.0.2
+Stable tag: 2.0.3
+= Banners =
+= Banners: 772x250 = https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main/assets/low-res-banner.png
+= Banners: 1544x500 = https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main/assets/high-res-banner.png
 License: GPL-2.0-or-later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
