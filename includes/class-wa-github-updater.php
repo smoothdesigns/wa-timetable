@@ -141,14 +141,7 @@ class WAGitHubUpdater
         }
 
         $banners = [];
-        if (preg_match_all('/^= Banners: (\d+x\d+) =\s*(.*?)(\n\n|$)/im', $contents, $banner_matches, PREG_SET_ORDER)) {
-            foreach ($banner_matches as $match) {
-                $size = trim($match[1]);
-                $url = trim($match[2]);
-                $banners[$size] = $url;
-            }
-        } else {
-             preg_match_all('/^= Banners =\s*(.*?)(\n\n|$)/s', $contents, $banner_matches, PREG_SET_ORDER);
+        if (preg_match_all('/^= Banners =\s*(.*?)(\n\n|$)/s', $contents, $banner_matches, PREG_SET_ORDER)) {
              if (isset($banner_matches[0][1])) {
                  $urls = explode("\n", trim($banner_matches[0][1]));
                  if (count($urls) === 2) {
@@ -171,8 +164,9 @@ class WAGitHubUpdater
             'requires' => $requires,
             'tested' => $tested,
             'requires_php' => $requires_php,
-            'sections' => $sections,
-            'banners' => (object) $banners,
+            'sections' => (array) $sections,
+            'banners' => (array) $banners,
+            'screenshots' => [],
         ];
 
         return $info;
