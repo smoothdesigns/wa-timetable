@@ -3,10 +3,10 @@
 /**
  * WA Timetable (Tokyo 2025)
  *
- * @package		WA-Timetable
- * @author 		Thomas Mirmo
+ * @package	WA-Timetable
+ * @author 	Thomas Mirmo
  * @copyright 2025 Thomas Mirmo
- * @license 	GPL-2.0-or-later
+ * @license GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: WA Timetable (Tokyo 2025)
