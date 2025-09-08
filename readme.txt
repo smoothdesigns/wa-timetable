@@ -5,7 +5,7 @@ Tags: timetable, sports, world athletics, tokyo 2025, world championships, track
 Requires at least: 5.3
 Tested up to: 6.8.2
 Requires PHP: 7.2
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 License: GPL-2.0-or-later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
