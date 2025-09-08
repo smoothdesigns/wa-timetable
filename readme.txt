@@ -1,6 +1,6 @@
 === WA Timetable (Tokyo 2025) ===
-Contributors: smoothdeisgns
-Donate link: 
+Contributors: smoothdesigns
+Donate link:
 Tags: timetable, sports, world athletics, tokyo 2025, world championships, track and field
 Requires at least: 5.3
 Tested up to: 6.8
@@ -25,7 +25,7 @@ WA Timetable is a lightweight and user-friendly WordPress plugin designed to dis
 3. Upload the ZIP file and activate the plugin.
 
 == Screenshots ==
-1. This is a screenshot of the timetable displayed on a page. 
+1. This is a screenshot of the timetable displayed on a page.
 
 == Changelog ==
 = 2.0.2 =
