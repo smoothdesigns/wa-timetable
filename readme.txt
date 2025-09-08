@@ -1,5 +1,5 @@
 === WA Timetable (Tokyo 2025) ===
-Contributors: smoothdesigns
+Contributors: smoothdeisgns
 Donate link:
 Tags: timetable, sports, world athletics, tokyo 2025, world championships, track and field
 Requires at least: 5.3
@@ -10,8 +10,8 @@ License: GPL-2.0-or-later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
 = Banners =
-https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main/assets/low-res-banner.png
-https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main/assets/high-res-banner.png
+= Banners: 772x250 = https://raw.githubusercontent.com/smoothdesigns/wa-timetable/refs/heads/main/assets/low-res-banner.png
+= Banners: 1544x500 = https://raw.githubusercontent.com/smoothdesigns/wa-timetable/refs/heads/main/assets/high-res-banner.png
 
 Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.
 
@@ -34,13 +34,6 @@ WA Timetable is a lightweight and user-friendly WordPress plugin designed to dis
 1. This is a screenshot of the timetable displayed on a page.
 
 == Changelog ==
-= 2.0.3 =
-* Resolved "Plugin not found" error by fixing an object-to-array conversion issue.
-* Added support for banners by updating readme.txt format and PHP parsing logic.
-* Corrected text formatting and list display issues in the "View details" page.
-* Eliminated the duplicate "View details" link.
-* Updated GitHub username from smoothdeisgns to smoothdesigns.
-
 = 2.0.2 =
 * Switched to self-contained GitHub updater class.
 * Removed external dependency to `plugin-update-checker` library.
