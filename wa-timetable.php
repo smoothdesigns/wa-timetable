@@ -10,13 +10,13 @@
  *
  * @wordpress-plugin
  * Plugin Name: 				WA Timetable (Tokyo 2025)
- * Plugin URI: 					https://github.com/smoothdesigns/wa-timetable
+ * Plugin URI: 					https://github.com/smoothdeisgns/wa-timetable
  * Description: 				Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.
  * Version: 						2.0.2
  * Requires at least: 	5.3
  * Requires PHP: 				7.2
  * Author: 							Thomas Mirmo
- * Author URI: 					https://github.com/smoothdesigns
+ * Author URI: 					https://github.com/smoothdeisgns
  * Text Domain: 				wa-timetable
  * License: 						GPL v2 or later
  * License URI: 				http://www.gnu.org/licenses/gpl-2.0.txt
@@ -137,7 +137,7 @@ class WAGitHubUpdater
 
 		// Fetch the last updated date from the GitHub API.
 		$last_updated = '';
-		$commit_api_url = 'https://api.github.com/repos/smoothdesigns/wa-timetable/commits?path=info.json&per_page=1';
+		$commit_api_url = 'https://api.github.com/repos/smoothdeisgns/wa-timetable/commits?path=info.json&per_page=1';
 		$commit_response = wp_remote_get($commit_api_url);
 		if (!is_wp_error($commit_response) && wp_remote_retrieve_response_code($commit_response) === 200) {
 			$commit_data = json_decode(wp_remote_retrieve_body($commit_response), true);
@@ -183,8 +183,8 @@ class WAGitHubUpdater
 			'sections' => $sections_object,
 			'screenshots' => $screenshots_objects,
 			'banners' => (object) [
-				'low' => 'https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main/assets/banner-772x250.png',
-				'high' => 'https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main/assets/banner-1544x500.png',
+				'low' => 'https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/banner-772x250.png',
+				'high' => 'https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main/assets/banner-1544x500.png',
 			],
 		];
 
@@ -196,7 +196,7 @@ class WAGitHubUpdater
 }
 
 // Instantiate the updater class.
-new WAGitHubUpdater(__FILE__, 'https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main');
+new WAGitHubUpdater(__FILE__, 'https://raw.githubusercontent.com/smoothdeisgns/wa-timetable/main');
 
 // Settings page function
 add_action('admin_menu', 'wa_timetable_settings_page');
