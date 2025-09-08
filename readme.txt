@@ -10,8 +10,8 @@ License: GPL-2.0-or-later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
 = Banners =
-= Banners: 772x250 = https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main/assets/low-res-banner.png
-= Banners: 1544x500 = https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main/assets/high-res-banner.png
+= Banners: 772x250 = https://raw.githubusercontent.com/smoothdesigns/wa-timetable/refs/heads/main/assets/low-res-banner.png
+= Banners: 1544x500 = https://raw.githubusercontent.com/smoothdesigns/wa-timetable/refs/heads/main/assets/high-res-banner.png
 
 Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.
 
