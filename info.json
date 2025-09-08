@@ -6,7 +6,7 @@
   "author_profile": "https://github.com/smoothdeisgns",
   "homepage": "https://github.com/smoothdeisgns/wa-timetable",
   "requires": "5.3",
-  "tested": "6.0",
+  "tested": "6.8",
   "requires_php": "7.2",
   "download_url": "https://github.com/smoothdeisgns/wa-timetable/releases/download/v2.0.2/wa-timetable.zip",
   "sections": {
