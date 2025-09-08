@@ -11,8 +11,8 @@
   "tested": "6.8.2",
   "requires_php": "7.2",
   "banners": {
-    "772x250": "https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main/assets/low-res-banner.png",
-    "1544x500": "https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main/assets/high-res-banner.png"
+    "banner_low": "https://raw.githubusercontent.com/smoothdesigns/wa-timetable/refs/heads/main/assets/low-res-banner.png",
+    "banner_high": "https://raw.githubusercontent.com/smoothdesigns/wa-timetable/refs/heads/main/assets/high-res-banner.png"
   },
   "sections": {
     "description": "WA Timetable is a lightweight and user-friendly WordPress plugin designed to display stylish timetables on your website. Whether you're a sports fan or a professional event organizer, this plugin provides a simple way to showcase schedules and events in a clear, accessible format.<br/><br/><strong>Features</strong><ul><li>Fully Responsive: Timetables look great on any device, from desktop computers to mobile phones.</li><li>Customizable: Easily change the look and feel of your timetable to match your website's theme via the plugin settings.</li><li>Shortcode Integration: Simply use a shortcode to embed the timetable on any page or post.</li></ul>",
