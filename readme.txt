@@ -25,9 +25,13 @@ WA Timetable is a lightweight and user-friendly WordPress plugin designed to dis
 
 == Installation ==
 1. Download the plugin ZIP file.
+
 2. In your WordPress admin dashboard, go to **Plugins > Add New**.
+
 3. Click the **"Upload Plugin"** button.
+
 4. Choose the downloaded ZIP file and click **"Install Now"**.
+
 5. After the installation is complete, click **"Activate Plugin"**.
 
 == Screenshots ==
