@@ -35,8 +35,12 @@ class WAGitHubUpdater
         // Add a filter to handle the plugin information display.
         add_filter('plugins_api', [$this, 'plugin_info'], 10, 3);
 
-        // Add a filter to add "View details" link on the plugins page.
+        // Add a filter to add "View details" link to the plugins page.
         add_filter('plugin_row_meta', [$this, 'add_plugin_row_meta'], 10, 2);
+
+        // Add a hook to handle the image proxy request.
+        add_action('wp_ajax_wa_timetable_proxy', [$this, 'do_banner_proxy']);
+        add_action('wp_ajax_nopriv_wa_timetable_proxy', [$this, 'do_banner_proxy']);
     }
 
     /**
@@ -83,6 +87,12 @@ class WAGitHubUpdater
 
         $remote_info = $this->get_remote_json_info();
         if ($remote_info) {
+            // Modify banner URLs to point to our proxy.
+            if (isset($remote_info->banners) && is_array($remote_info->banners)) {
+                foreach ($remote_info->banners as $key => $url) {
+                    $remote_info->banners[$key] = admin_url('admin-ajax.php?action=wa_timetable_proxy&url=' . urlencode($url));
+                }
+            }
             return $remote_info;
         }
 
@@ -102,6 +112,37 @@ class WAGitHubUpdater
             $links[] = '<a href="' . network_admin_url('plugin-install.php?tab=plugin-information&plugin=' . $this->plugin_slug . '&TB_iframe=true&width=600&height=550') . '" class="thickbox open-plugin-details-modal">View details</a>';
         }
         return $links;
+    }
+
+    /**
+     * Acts as an image proxy to serve external images.
+     */
+    public function do_banner_proxy()
+    {
+        if (!isset($_GET['url'])) {
+            wp_send_json_error('URL parameter missing.');
+        }
+
+        $url = urldecode($_GET['url']);
+        $image_data = wp_remote_get($url);
+
+        if (is_wp_error($image_data) || wp_remote_retrieve_response_code($image_data) !== 200) {
+            status_header(404);
+            die();
+        }
+
+        $headers = wp_remote_retrieve_headers($image_data);
+        $body = wp_remote_retrieve_body($image_data);
+
+        // Set the content type header from the fetched data.
+        $content_type = isset($headers['content-type']) ? $headers['content-type'] : 'application/octet-stream';
+        header('Content-Type: ' . $content_type);
+
+        // Set the content length.
+        header('Content-Length: ' . strlen($body));
+
+        echo $body;
+        die();
     }
 
     /**
