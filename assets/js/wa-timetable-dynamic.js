@@ -209,3 +209,4 @@ jQuery(document).ready(function ($) {
 		}
 	}, 1500); // Wait 1.5 seconds
 });
+
