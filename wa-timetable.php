@@ -12,7 +12,7 @@
  * Plugin Name:         WA Timetable (Tokyo 2025)
  * Plugin URI:          https://github.com/smoothdesigns/wa-timetable
  * Description:         Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.
- * Version:             2.0.4
+ * Version:             2.0.5
  * Requires at least:   5.3
  * Tested up to:        6.8.2
  * Requires PHP:        7.2
@@ -29,9 +29,10 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('WA_TIMETABLE_VERSION', '2.0.2');
+define('WA_TIMETABLE_VERSION', '2.0.5');
 define('WA_TIMETABLE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WA_TIMETABLE_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('WA_TIMETABLE_ASSETS_URL', WA_TIMETABLE_PLUGIN_URL . 'assets/');
 
 // Include the necessary files
 require_once WA_TIMETABLE_PLUGIN_DIR . 'includes/class-wa-github-updater.php';
@@ -79,7 +80,7 @@ class WATimetable
 		}
 
 		// Enqueue custom styles
-		wp_enqueue_style('wa-timetable-styles', WA_TIMETABLE_PLUGIN_URL . 'assets/css/wa-timetable-styles.css', ['bootstrap'], WA_TIMETABLE_VERSION);
+		wp_enqueue_style('wa-timetable-styles', WA_TIMETABLE_ASSETS_URL . 'css/wa-timetable-styles.css', ['bootstrap'], WA_TIMETABLE_VERSION);
 
 		// Enqueue jQuery (if not already enqueued)
 		if (!wp_script_is('jquery', 'enqueued') && !wp_script_is('jquery', 'registered')) {
@@ -92,13 +93,12 @@ class WATimetable
 		}
 
 		// Enqueue custom script for dynamic loading and functionality
-		wp_enqueue_script('wa-timetable', WA_TIMETABLE_PLUGIN_URL . 'assets/js/wa-timetable.js', ['jquery', 'bootstrap'], WA_TIMETABLE_VERSION, true);
+		wp_enqueue_script('wa-timetable', WA_TIMETABLE_ASSETS_URL . 'js/wa-timetable.js', ['jquery', 'bootstrap'], WA_TIMETABLE_VERSION, true);
 
 		// Enqueue dynamic script if needed
-		wp_enqueue_script('wa-timetable-dynamic', WA_TIMETABLE_PLUGIN_URL . 'assets/js/wa-timetable-dynamic.js', ['jquery'], WA_TIMETABLE_VERSION, true);
+		wp_enqueue_script('wa-timetable-dynamic', WA_TIMETABLE_ASSETS_URL . 'js/wa-timetable-dynamic.js', ['jquery'], WA_TIMETABLE_VERSION, true);
 	}
 }
 
 // Kick off the plugin
 new WATimetable();
-
