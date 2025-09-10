@@ -1,12 +1,12 @@
 {
   "slug": "wa-timetable",
   "name": "WA Timetable (Tokyo 2025)",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "author": "Thomas Mirmo",
   "author_profile": "https://github.com/smoothdesigns",
-  "last_updated": "2025-09-08 22:23:00",
+  "last_updated": "2025-09-10 08:36:00",
   "homepage": "https://github.com/smoothdesigns/wa-timetable",
-  "download_link": "https://github.com/smoothdesigns/wa-timetable/releases/download/v2.0.3/wa-timetable.zip",
+  "download_link": "https://github.com/smoothdesigns/wa-timetable/releases/download/v2.0.4/wa-timetable.zip",
   "requires": "5.3",
   "tested": "6.8.2",
   "requires_php": "7.2",
@@ -18,8 +18,10 @@
     "description": "WA Timetable is a lightweight and user-friendly WordPress plugin designed to display stylish timetables on your website. Whether you're a sports fan or a professional event organizer, this plugin provides a simple way to showcase schedules and events in a clear, accessible format.<br/><br/><strong>Features</strong><ul><li>Fully Responsive: Timetables look great on any device, from desktop computers to mobile phones.</li><li>Customizable: Easily change the look and feel of your timetable to match your website's theme via the plugin settings.</li><li>Shortcode Integration: Simply use a shortcode to embed the timetable on any page or post.</li></ul>",
     "installation": "<ol><li>Download the plugin ZIP file.</li><li>In your WordPress admin dashboard, go to <strong>Plugins &gt; Add New</strong>.</li><li>Click the <strong>\"Upload Plugin\"</strong> button.</li><li>Choose the downloaded ZIP file and click <strong>\"Install Now\"</strong>.</li><li>After the installation is complete, click <strong>\"Activate Plugin\"</strong>.</li></ol>",
     "screenshots": "This is a screenshot of the timetable displayed on a page. ",
-    "changelog": "<h4>2.0.3</h4><ul><li>Resolved \"Plugin not found\" error by fixing an object-to-array conversion issue.</li><li>Added support for banners by updating readme.txt format and PHP parsing logic.</li><li>Corrected text formatting and list display issues in the \"View details\" page.</li><li>Eliminated the duplicate \"View details\" link.</li><li>Updated GitHub username from smoothdeisgns to smoothdesigns.</li></ul><h4>2.0.2</h4><ul><li>Switched to self-contained GitHub updater class.</li><li>Removed external dependency to `plugin-update-checker` library.</li></ul><h4>2.0.1</h4><ul><li>Fixed a bug where a non-existent timetable URL would break the plugin.</li></ul><h4>2.0.0</h4><ul><li>Major release to support the 2025 World Athletics Championships in Tokyo.</li><li>Timetable data is now fetched and parsed dynamically from the official website.</li><li>Added settings page for customization of timezones and session names.</li></ul>",
+    "changelog": "<h4>2.0.4</h4><ul><li>Relocated CSS and JS folders to the assets directory, and adjusted the enqueue URLs accordingly.</li></ul><h4>2.0.3</h4><ul><li>Resolved \"Plugin not found\" error by fixing an object-to-array conversion issue.</li><li>Added support for banners by updating readme.txt format and PHP parsing logic.</li><li>Corrected text formatting and list display issues in the \"View details\" page.</li><li>Eliminated the duplicate \"View details\" link.</li><li>Updated GitHub username from smoothdeisgns to smoothdesigns.</li></ul><h4>2.0.2</h4><ul><li>Switched to self-contained GitHub updater class.</li><li>Removed external dependency to `plugin-update-checker` library.</li></ul><h4>2.0.1</h4><ul><li>Fixed a bug where a non-existent timetable URL would break the plugin.</li></ul><h4>2.0.0</h4><ul><li>Major release to support the 2025 World Athletics Championships in Tokyo.</li><li>Timetable data is now fetched and parsed dynamically from the official website.</li><li>Added settings page for customization of timezones and session names.</li></ul>",
     "contribution": "We welcome contributions! If you have suggestions for improvements or want to report a bug, feel free to open a pull request or an issue on the GitHub repository.",
     "support": "If you have any questions or run into any issues, please open an issue on the GitHub repository."
   }
 }
+
+
