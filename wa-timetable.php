@@ -3,24 +3,24 @@
 /**
  * WA Timetable (Tokyo 2025)
  *
- * @package      WA-Timetable
- * @author       Thomas Mirmo
- * @copyright    2025 Thomas Mirmo
- * @license      GPL-2.0-or-later
+ * @package   WA-Timetable
+ * @author    Thomas Mirmo
+ * @copyright   2025 Thomas Mirmo
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
- * Plugin Name:      	WA Timetable (Tokyo 2025)
- * Plugin URI:      	https://github.com/smoothdesigns/wa-timetable
- * Description:      	Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.
- * Version:        		2.6.0
- * Requires at least: 	5.3
- * Tested up to:      	6.8.2
- * Requires PHP:      	7.2
- * Author:        		Thomas Mirmo
- * Author URI:      	https://github.com/smoothdesigns
- * Text Domain:      	wa-timetable
- * License:      		GPL v2 or later
- * License URI:      	http://www.gnu.org/licenses/gpl-2.0.txt
+ * Plugin Name:   WA Timetable (Tokyo 2025)
+ * Plugin URI:    https://github.com/smoothdesigns/wa-timetable
+ * Description:   Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.
+ * Version:     2.6.4
+ * Requires at least:   5.3
+ * Tested up to:    6.8.2
+ * Requires PHP:    7.2
+ * Author:      Thomas Mirmo
+ * Author URI:    https://github.com/smoothdesigns
+ * Text Domain:   wa-timetable
+ * License:     GPL v2 or later
+ * License URI:   http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
 if (!defined('ABSPATH')) {
@@ -35,13 +35,11 @@ if (!class_exists('WAGitHubUpdater')) {
 /**
  * Main class for the WA Timetable Plugin.
  */
-class WA_Timetable_Main_Plugin
-{
+class WA_Timetable_Main_Plugin {
 	/**
 	 * Constructor.
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		// Register the shortcode
 		add_shortcode('wa_timetable', [$this, 'render_shortcode']);
 		// Enqueue styles and scripts
@@ -59,8 +57,7 @@ class WA_Timetable_Main_Plugin
 	/**
 	 * Enqueues Bootstrap CSS and JS.
 	 */
-	public function enqueue_scripts()
-	{
+	public function enqueue_scripts() {
 		// Check if Bootstrap 5 is already enqueued to avoid conflicts
 		if (!wp_style_is('bootstrap', 'enqueued')) {
 			wp_enqueue_style(
@@ -99,12 +96,11 @@ class WA_Timetable_Main_Plugin
 	/**
 	 * Adds integrity and crossorigin attributes to the Font Awesome stylesheet.
 	 *
-	 * @param string $tag    The HTML link tag for the stylesheet.
+	 * @param string $tag  The HTML link tag for the stylesheet.
 	 * @param string $handle The stylesheet handle.
 	 * @return string The modified HTML link tag.
 	 */
-	public function add_integrity_and_crossorigin($tag, $handle)
-	{
+	public function add_integrity_and_crossorigin($tag, $handle) {
 		if ('font-awesome' === $handle) {
 			$integrity = 'sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==';
 			$new_attributes = ' integrity="' . $integrity . '" crossorigin="anonymous"';
@@ -119,8 +115,7 @@ class WA_Timetable_Main_Plugin
 	 *
 	 * @return string The rendered HTML output.
 	 */
-	public function render_shortcode()
-	{
+	public function render_shortcode() {
 		// 1. Data Extraction
 		$extractor = new WA_Timetable_Data_Extractor();
 		$data = $extractor->extract();
@@ -141,20 +136,19 @@ class WA_Timetable_Main_Plugin
 		$view = new WA_Timetable_View();
 		return $view->generate_html($processed_data);
 	}
+
 }
 
 /**
  * Handles all data fetching and extraction logic.
  */
-class WA_Timetable_Data_Extractor
-{
+class WA_Timetable_Data_Extractor {
 	/**
 	 * Extracts the __NEXT_DATA__ JSON from the website's HTML.
 	 *
 	 * @return object|WP_Error The decoded JSON object or a WP_Error on failure.
 	 */
-	public function extract()
-	{
+	public function extract() {
 		$url = 'https://worldathletics.org/competitions/world-athletics-championships/tokyo25/timetable';
 
 		$response = wp_remote_get($url, [
@@ -196,27 +190,67 @@ class WA_Timetable_Data_Extractor
 
 		return $data;
 	}
+
 }
 
 /**
  * Handles all data processing and formatting.
  */
-class WA_Timetable_Processor
-{
+class WA_Timetable_Processor {
 	/**
 	 * Processes raw data into a structured format grouped by date and session.
 	 *
 	 * @param object $data The decoded JSON data.
 	 * @return array The processed data, grouped by date.
 	 */
-	public function process($data)
-	{
+	public function process($data) {
 		$event_timetable = $data->props->pageProps->phases;
+
+		$expanded_timetable = [];
+		$processed_qualifications = [];
+
+		foreach ($event_timetable as $event) {
+			// Check if the event has units and is a qualification event
+			if (!empty($event->units) && isset($event->units[0]->unitType) && $event->units[0]->unitType === 'G') {
+
+				// Generate a unique key for the discipline to check for concurrency
+				$discipline_key = $event->disciplineName . '_' . $event->sexName;
+
+				// Group units by their start time
+				$units_by_time = [];
+				foreach ($event->units as $unit) {
+					$start_time = $unit->startDateTime;
+					if (!isset($units_by_time[$start_time])) {
+						$units_by_time[$start_time] = [];
+					}
+					$units_by_time[$start_time][] = $unit;
+				}
+
+				foreach ($units_by_time as $start_time => $units) {
+					$unit_event = clone $event;
+					$unit_event->phaseDateAndTime = $start_time;
+
+					// If multiple units share the same start time, it's concurrent
+					if (count($units) > 1) {
+						$unit_event->phaseName = $event->phaseName; // No group label for concurrent groups
+					} else {
+						$unit_event->phaseName = $event->phaseName . ' - Group ' . ($units[0]->unitName ?? '');
+					}
+
+					$expanded_timetable[] = $unit_event;
+				}
+			} else {
+				// If it's not a grouped qualification event, add the original phase.
+				$expanded_timetable[] = $event;
+			}
+		}
+
+		// Now, process the new expanded list of events.
+		$event_timetable = $expanded_timetable;
+
 		$grouped_data = [];
 
 		// Calculate the time difference between Tokyo (JST) and Jamaica (EST/EDT)
-		// JST is UTC+9, EST is UTC-5. Difference is 14 hours.
-		// We use 'America/Jamaica' to handle both EST and EDT if applicable.
 		$tokyo_timezone = new DateTimeZone('Asia/Tokyo');
 		$jamaica_timezone = new DateTimeZone('America/Jamaica');
 		$tokyo_datetime = new DateTime('now', $tokyo_timezone);
@@ -268,21 +302,20 @@ class WA_Timetable_Processor
 
 		return $grouped_data;
 	}
+
 }
 
 /**
  * Handles all view logic and HTML generation.
  */
-class WA_Timetable_View
-{
+class WA_Timetable_View {
 	/**
 	 * Generates the HTML for the timetable using Bootstrap tabs and a custom layout.
 	 *
 	 * @param array $phases The processed timetable data, grouped by date.
 	 * @return string The HTML output.
 	 */
-	public function generate_html($phases)
-	{
+	public function generate_html($phases) {
 		// Determine the current date in Jamaica to set the active tab
 		$jamaica_timezone = new DateTimeZone('America/Jamaica');
 		$current_date_jamaica = new DateTime('now', $jamaica_timezone);
@@ -291,7 +324,7 @@ class WA_Timetable_View
 		$output = '<div class="wa-timetable-container">';
 
 		// Tabs navigation
-		$output .= '<ul class="nav nav-pills nav-justified" id="timetableTabs" role="tablist">';
+		$output .= '<ul class="nav nav-pills nav-justified my-0" id="timetableTabs" role="tablist">';
 		$is_first_tab = true;
 		foreach (array_keys($phases) as $date_label) {
 			$tab_id = sanitize_title($date_label);
@@ -311,7 +344,12 @@ class WA_Timetable_View
 
 			$day_part = isset($parts[0]) ? $parts[0] : '';
 
-			$output .= '<li class="nav-item day-item">';
+			// Override the day part with "TODAY" if the date matches today
+			if ($date_part === $current_date_formatted) {
+				$day_part = 'TODAY';
+			}
+
+			$output .= '<li class="nav-item day-item my-0">';
 			$output .= '<a class="nav-link ' . $active_class . '" id="' . $tab_id . '-tab" data-bs-toggle="tab" data-bs-target="#' . $tab_id . '" type="button" role="tab" aria-controls="' . $tab_id . '" aria-selected="' . ($active_class === 'active' ? 'true' : 'false') . '">';
 			// Start of custom content for the tab link
 			$output .= '<div class="d-flex flex-column">';
@@ -357,13 +395,13 @@ class WA_Timetable_View
 				$output .= '<div class="accordion-item border-0">';
 
 				// Accordion Header
-				$output .= '<h2 class="accordion-header p-0" id="heading-' . $session_id . '">';
+				$output .= '<h2 class="accordion-header p-0 my-0" id="heading-' . $session_id . '">';
 				$output .= '<button class="accordion-button ' . $collapsed_class . '" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $session_id . '" aria-expanded="true" aria-controls="collapse-' . $session_id . '">';
-				$output .= '<div class="session-wrapper d-flex flex-column">';
+				$output .= '<div class="session-wrapper d-flex flex-column lh-1 gap-1">';
 				// Add inline styling for session-name
 				$output .= '<span class="session-name" style="font-size: 20px; text-transform: uppercase;">' . esc_html($session_name) . '</span>';
 				// Add calendar icon and inline styling for event-count
-				$output .= '<span class="event-count" style="font-size: 14px;"><i class="far fa-calendar-alt me-2"></i>' . count($events_for_session) . ' events</span>';
+				$output .= '<span class="event-count" style="font-size: 14px;"><i class="far fa-calendar-alt me-2"></i>' . count($events_for_session) . ' event sections</span>';
 				$output .= '</div>';
 				$output .= '</button>';
 				$output .= '</h2>';
@@ -397,6 +435,20 @@ class WA_Timetable_View
 						$bgColor = '#c2e9ed';
 					}
 
+					// Calculate the day number based on the Tokyo time
+					$tokyo_timezone = new DateTimeZone('Asia/Tokyo');
+					$event_date_tokyo = new DateTime($event->phaseDateAndTime ?? '', $tokyo_timezone);
+
+					// The URL requires a day number from 1 to 9, corresponding to the event date.
+					// We calculate this by finding the difference in days from the start date (September 13th).
+					$start_date_for_count = new DateTime('2025-09-13 00:00:00', $tokyo_timezone);
+					$interval_for_count = $start_date_for_count->diff($event_date_tokyo);
+					$day_number_tokyo = $interval_for_count->days + 1;
+
+					// Construct the URL with the correct day number
+					$base_url = 'https://worldathletics.org/competitions/world-athletics-championships/tokyo25/timetable';
+					$link_url = $base_url . '?day=' . $day_number_tokyo;
+
 					$output .= '<div class="event-item" id="event-' . esc_attr($event_id) . '-' . esc_attr($phase_order) . '">';
 					$output .= '<div class="event-item-content d-flex justify-content-between align-items-start">';
 
@@ -415,13 +467,13 @@ class WA_Timetable_View
 					// Action links
 					$output .= '<div class="event-links">';
 					if ($event->isStartlistPublished ?? 0) {
-						$output .= '<a href="#">Startlist Available &gt;</a>';
+						$output .= '<a href="' . esc_url($link_url) . '" target="_blank">Start list &gt;</a>';
 					}
 					if ($event->isResultPublished ?? 0) {
-						$output .= '<a href="#">Results Available &gt;</a>';
+						$output .= '<a href="' . esc_url($link_url) . '" target="_blank">Results &gt;</a>';
 					}
 					if ($event->isPhaseSummaryPublished ?? 0) {
-						$output .= '<a href="#">Summary Available &gt;</a>';
+						$output .= '<a href="' . esc_url($link_url) . '" target="_blank">Summary &gt;</a>';
 					}
 					$output .= '</div>'; // close event-links
 
@@ -443,8 +495,8 @@ class WA_Timetable_View
 
 		return $output;
 	}
+
 }
 
 // Instantiate the main plugin class to get things started.
 new WA_Timetable_Main_Plugin();
-
