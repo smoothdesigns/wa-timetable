@@ -3,24 +3,24 @@
 /**
  * WA Timetable (Tokyo 2025)
  *
- * @package   WA-Timetable
- * @author    Thomas Mirmo
- * @copyright   2025 Thomas Mirmo
- * @license   GPL-2.0-or-later
+ * @package 	WA-Timetable
+ * @author 	Thomas Mirmo
+ * @copyright 	2025 Thomas Mirmo
+ * @license 	GPL-2.0-or-later
  *
  * @wordpress-plugin
- * Plugin Name:   WA Timetable (Tokyo 2025)
- * Plugin URI:    https://github.com/smoothdesigns/wa-timetable
- * Description:   Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.
- * Version:     2.6.4
- * Requires at least:   5.3
- * Tested up to:    6.8.2
- * Requires PHP:    7.2
- * Author:      Thomas Mirmo
- * Author URI:    https://github.com/smoothdesigns
- * Text Domain:   wa-timetable
- * License:     GPL v2 or later
- * License URI:   http://www.gnu.org/licenses/gpl-2.0.txt
+ * Plugin Name: 	WA Timetable (Tokyo 2025)
+ * Plugin URI: 	https://github.com/smoothdesigns/wa-timetable
+ * Description: 	Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time.
+ * Version: 	2.6.4
+ * Requires at least: 	5.3
+ * Tested up to: 6.8.2
+ * Requires PHP: 7.2
+ * Author: 	Thomas Mirmo
+ * Author URI: 	https://github.com/smoothdesigns
+ * Text Domain: 	wa-timetable
+ * License: 	GPL v2 or later
+ * License URI: 	http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
 if (!defined('ABSPATH')) {
@@ -96,7 +96,7 @@ class WA_Timetable_Main_Plugin {
 	/**
 	 * Adds integrity and crossorigin attributes to the Font Awesome stylesheet.
 	 *
-	 * @param string $tag  The HTML link tag for the stylesheet.
+	 * @param string $tag 	The HTML link tag for the stylesheet.
 	 * @param string $handle The stylesheet handle.
 	 * @return string The modified HTML link tag.
 	 */
@@ -134,7 +134,7 @@ class WA_Timetable_Main_Plugin {
 
 		// 3. View Generation (Bootstrap tabs and custom layout)
 		$view = new WA_Timetable_View();
-		return $view->generate_html($processed_data);
+		return $view->generate_html($processed_data, $data);
 	}
 
 }
@@ -230,6 +230,9 @@ class WA_Timetable_Processor {
 					$unit_event = clone $event;
 					$unit_event->phaseDateAndTime = $start_time;
 
+					// Add a new property for a clean URL slug, separate from the display name
+					$unit_event->phaseUrlSlug = sanitize_title($event->phaseName);
+
 					// If multiple units share the same start time, it's concurrent
 					if (count($units) > 1) {
 						$unit_event->phaseName = $event->phaseName; // No group label for concurrent groups
@@ -313,50 +316,56 @@ class WA_Timetable_View {
 	 * Generates the HTML for the timetable using Bootstrap tabs and a custom layout.
 	 *
 	 * @param array $phases The processed timetable data, grouped by date.
+	 * @param object $full_data The full data object from __NEXT_DATA__.
 	 * @return string The HTML output.
 	 */
-	public function generate_html($phases) {
+	public function generate_html($phases, $full_data) {
 		// Determine the current date in Jamaica to set the active tab
 		$jamaica_timezone = new DateTimeZone('America/Jamaica');
 		$current_date_jamaica = new DateTime('now', $jamaica_timezone);
 		$current_date_formatted = $current_date_jamaica->format('M d');
 
+		// Determine the active tab ID once before generating the HTML.
+		$active_tab_id = null;
+		foreach (array_keys($phases) as $date_label) {
+			$parts = explode(' - ', $date_label);
+			$date_part = isset($parts[1]) ? $parts[1] : '';
+
+			if ($date_part === $current_date_formatted) {
+				$active_tab_id = sanitize_title($date_label);
+				break; // Found the current day, no need to check further.
+			}
+		}
+
+		// If no tab matches the current day, default to the first one.
+		if ($active_tab_id === null) {
+			$first_date_label = reset(array_keys($phases));
+			$active_tab_id = sanitize_title($first_date_label);
+		}
+
 		$output = '<div class="wa-timetable-container">';
 
 		// Tabs navigation
 		$output .= '<ul class="nav nav-pills nav-justified my-0" id="timetableTabs" role="tablist">';
-		$is_first_tab = true;
 		foreach (array_keys($phases) as $date_label) {
 			$tab_id = sanitize_title($date_label);
 
-			// Check if this tab's date matches the current date
 			$parts = explode(' - ', $date_label);
 			$date_part = isset($parts[1]) ? $parts[1] : '';
 
-			$active_class = '';
-			if ($date_part === $current_date_formatted) {
-				$active_class = 'active';
-				$is_first_tab = false; // Override the first tab logic if a date matches
-			} elseif ($is_first_tab) {
-				$active_class = 'active';
-				$is_first_tab = false;
-			}
+			$active_class = ($tab_id === $active_tab_id) ? 'active' : '';
 
 			$day_part = isset($parts[0]) ? $parts[0] : '';
-
-			// Override the day part with "TODAY" if the date matches today
 			if ($date_part === $current_date_formatted) {
 				$day_part = 'TODAY';
 			}
 
 			$output .= '<li class="nav-item day-item my-0">';
 			$output .= '<a class="nav-link ' . $active_class . '" id="' . $tab_id . '-tab" data-bs-toggle="tab" data-bs-target="#' . $tab_id . '" type="button" role="tab" aria-controls="' . $tab_id . '" aria-selected="' . ($active_class === 'active' ? 'true' : 'false') . '">';
-			// Start of custom content for the tab link
 			$output .= '<div class="d-flex flex-column">';
 			$output .= '<span style="font-size: 10px; font-weight: normal; text-transform: uppercase;">' . esc_html($day_part) . '</span>';
 			$output .= '<span style="font-size: 14px; font-weight: bold;">' . esc_html($date_part) . '</span>';
 			$output .= '</div>';
-			// End of custom content
 			$output .= '</a>';
 			$output .= '</li>';
 		}
@@ -364,22 +373,9 @@ class WA_Timetable_View {
 
 		// Tab content panes
 		$output .= '<div class="tab-content mt-3">';
-		$is_first_content = true;
 		foreach ($phases as $date_label => $sessions_for_date) {
 			$tab_id = sanitize_title($date_label);
-
-			// Check if this tab's date matches the current date
-			$parts = explode(' - ', $date_label);
-			$date_part = isset($parts[1]) ? $parts[1] : '';
-
-			$active_class = '';
-			if ($date_part === $current_date_formatted) {
-				$active_class = 'show active';
-				$is_first_content = false; // Override the first tab logic if a date matches
-			} elseif ($is_first_content) {
-				$active_class = 'show active';
-				$is_first_content = false;
-			}
+			$active_class = ($tab_id === $active_tab_id) ? 'show active' : '';
 
 			$output .= '<div class="tab-pane fade ' . $active_class . '" id="' . $tab_id . '" role="tabpanel" aria-labelledby="' . $tab_id . '-tab">';
 
@@ -387,113 +383,135 @@ class WA_Timetable_View {
 			$output .= '<div class="accordion" id="accordion-' . $tab_id . '">';
 			foreach ($sessions_for_date as $session_name => $events_for_session) {
 				$session_id = sanitize_title($date_label . '-' . $session_name);
-				// Remove collapsed class so all accordions are open by default.
-				$collapsed_class = '';
-				$show_class = 'show';
+				$show_class = 'show'; // All accordions are open by default.
 
-				// Accordion Item
+				// Check if the session is finished.
+				$all_results_published = true;
+				foreach ($events_for_session as $event) {
+					if (!$this->check_units_for_status($event, 'isResultPublished')) {
+						$all_results_published = false;
+						break;
+					}
+				}
+
 				$output .= '<div class="accordion-item border-0">';
-
-				// Accordion Header
 				$output .= '<h2 class="accordion-header p-0 my-0" id="heading-' . $session_id . '">';
-				$output .= '<button class="accordion-button ' . $collapsed_class . '" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $session_id . '" aria-expanded="true" aria-controls="collapse-' . $session_id . '">';
+				$output .= '<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $session_id . '" aria-expanded="true" aria-controls="collapse-' . $session_id . '">';
 				$output .= '<div class="session-wrapper d-flex flex-column lh-1 gap-1">';
-				// Add inline styling for session-name
-				$output .= '<span class="session-name" style="font-size: 20px; text-transform: uppercase;">' . esc_html($session_name) . '</span>';
-				// Add calendar icon and inline styling for event-count
+				$output .= '<span class="session-name" style="font-size: 20px; text-transform: uppercase;">' . esc_html($session_name);
+				if ($all_results_published) {
+					$output .= '<span style="background-color: #dc3545; color: white; padding: 2px 8px; font-size: 10px; border-radius: 9999px; font-weight: bold; margin-left: 8px;">ENDED</span>';
+				}
+				$output .= '</span>';
 				$output .= '<span class="event-count" style="font-size: 14px;"><i class="far fa-calendar-alt me-2"></i>' . count($events_for_session) . ' event sections</span>';
 				$output .= '</div>';
 				$output .= '</button>';
 				$output .= '</h2>';
-
-				// Accordion Body
-				// Remove the data-bs-parent attribute to allow multiple accordions to stay open.
 				$output .= '<div id="collapse-' . $session_id . '" class="accordion-collapse collapse ' . $show_class . '" aria-labelledby="heading-' . $session_id . '">';
 				$output .= '<div class="accordion-body p-0">';
-
-				// List of events for the session
 				$output .= '<div class="events-list">';
+
 				foreach ($events_for_session as $event) {
 					$disciplineName = $event->disciplineName ?? 'N/A';
 					$sexName = $event->sexName ?? 'N/A';
 					$phaseName = $event->phaseName ?? 'N/A';
-					$event_id = $event->eventId ?? uniqid();
+					$event_id = $event->id ?? uniqid();
 					$phase_order = $event->phaseOrder ?? uniqid();
 
-					// Add apostrophe 's' to Men's and Women's
 					if ($sexName === 'Men' || $sexName === 'Women') {
 						$sexName = $sexName . '\'s';
 					}
 
-					// Determine the background color based on the phase name
-					$bgColor = 'transparent'; // Default background color
-					if (strpos($phaseName, 'Final') !== false) {
+					$bgColor = 'transparent';
+					$is_final = strpos($phaseName, 'Final');
+					$is_qualification = strpos($phaseName, 'Qualification');
+					$is_preliminary = strpos($phaseName, 'Preliminary');
+					$is_decathlon = strpos($phaseName, 'Decathlon');
+					$is_heptathlon = strpos($phaseName, 'Heptathlon');
+					$is_heats = strpos($phaseName, 'Heats');
+
+					if ($is_final !== false) {
 						$bgColor = '#fbd1bb';
-					} elseif (strpos($phaseName, 'Qualification') !== false || strpos($phaseName, 'Preliminary') !== false || strpos($phaseName, 'Decathlon') !== false || strpos($phaseName, 'Heptathlon') !== false) {
+					} elseif ($is_qualification !== false || $is_preliminary !== false || $is_decathlon !== false || $is_heptathlon !== false) {
 						$bgColor = '#dfd0fa';
-					} elseif (strpos($phaseName, 'Heats') !== false) {
+					} elseif ($is_heats !== false) {
 						$bgColor = '#c2e9ed';
 					}
 
-					// Calculate the day number based on the Tokyo time
-					$tokyo_timezone = new DateTimeZone('Asia/Tokyo');
-					$event_date_tokyo = new DateTime($event->phaseDateAndTime ?? '', $tokyo_timezone);
+					$discipline_slug = '';
+					if (isset($full_data->props->apolloState->data->{'Discipline:' . $event->disciplineCode})) {
+						$discipline_slug = $full_data->props->apolloState->data->{'Discipline:' . $event->disciplineCode}->Slug;
+					}
 
-					// The URL requires a day number from 1 to 9, corresponding to the event date.
-					// We calculate this by finding the difference in days from the start date (September 13th).
-					$start_date_for_count = new DateTime('2025-09-13 00:00:00', $tokyo_timezone);
-					$interval_for_count = $start_date_for_count->diff($event_date_tokyo);
-					$day_number_tokyo = $interval_for_count->days + 1;
+					$sanitized_sexName = strtolower(str_replace('\'s', '', $sexName));
+					$sanitized_phase_url_slug = $event->phaseUrlSlug ?? sanitize_title($phaseName);
 
-					// Construct the URL with the correct day number
-					$base_url = 'https://worldathletics.org/competitions/world-athletics-championships/tokyo25/timetable';
-					$link_url = $base_url . '?day=' . $day_number_tokyo;
+					$base_url = 'https://worldathletics.org/competitions/world-athletics-championships/tokyo25/results/';
+					$startlist_url = $base_url . $sanitized_sexName . '/' . $discipline_slug . '/' . $sanitized_phase_url_slug . '/startlist';
+					$results_url = $base_url . $sanitized_sexName . '/' . $discipline_slug . '/' . $sanitized_phase_url_slug . '/results';
+					$summary_url = $base_url . $sanitized_sexName . '/' . $discipline_slug . '/' . $sanitized_phase_url_slug . '/summary';
 
 					$output .= '<div class="event-item" id="event-' . esc_attr($event_id) . '-' . esc_attr($phase_order) . '">';
-					$output .= '<div class="event-item-content d-flex justify-content-between align-items-start">';
-
-					// Left 60% column
+					$output .= '<div class="event-item-content">';
 					$output .= '<div class="event-details-left">';
 					$output .= '<div class="event-name">' . esc_html($sexName) . ' ' . esc_html($disciplineName) . '</div>';
-					// Apply dynamic styling here
 					$output .= '<div class="event-phase-container"><span style="border-radius: 4px; padding: 2px 6px; line-height: 1; background-color: ' . $bgColor . ';">' . esc_html($phaseName) . '</span></div>';
-					$output .= '</div>'; // close event-details-left
-
-					// Right 40% column
+					$output .= '</div>';
 					$output .= '<div class="event-details-right">';
-					// Use the converted Jamaica time
 					$output .= '<div class="event-time">' . esc_html($event->jamaica_time) . '</div>';
-
-					// Action links
 					$output .= '<div class="event-links">';
-					if ($event->isStartlistPublished ?? 0) {
-						$output .= '<a href="' . esc_url($link_url) . '" target="_blank">Start list &gt;</a>';
-					}
-					if ($event->isResultPublished ?? 0) {
-						$output .= '<a href="' . esc_url($link_url) . '" target="_blank">Results &gt;</a>';
-					}
-					if ($event->isPhaseSummaryPublished ?? 0) {
-						$output .= '<a href="' . esc_url($link_url) . '" target="_blank">Summary &gt;</a>';
-					}
-					$output .= '</div>'; // close event-links
 
-					$output .= '</div>'; // close event-details-right
-					$output .= '</div>'; // close event-item-content
-					$output .= '</div>'; // close event-item
+					$is_startlist_published_by_units = $this->check_units_for_status($event, 'isStartlistPublished');
+					$is_results_published_by_units = $this->check_units_for_status($event, 'isResultPublished');
+					$is_summary_published_by_units = $this->check_units_for_status($event, 'isPhaseSummaryPublished');
+
+					if ($is_startlist_published_by_units && !$is_results_published_by_units) {
+						$output .= '<a href="' . esc_url($startlist_url) . '" target="_blank"><span class="startlist-link">Startlist <i class="fas fa-angle-right"></i></span></a>';
+					}
+					if ($is_results_published_by_units) {
+						$output .= '<a href="' . esc_url($results_url) . '" target="_blank"><span class="results-link">Results <i class="fas fa-angle-right"></i></span></a>';
+					}
+					if ($is_summary_published_by_units) {
+						$output .= '<a href="' . esc_url($summary_url) . '" target="_blank"><span class="summary-link">Summary <i class="fas fa-angle-right"></i></span></a>';
+					}
+					$output .= '</div>';
+					$output .= '</div>';
+					$output .= '</div>';
+					$output .= '</div>';
 				}
-				$output .= '</div>'; // close events-list
-				$output .= '</div>'; // close accordion-body
-				$output .= '</div>'; // close accordion-collapse
-				$output .= '</div>'; // close accordion-item
+				$output .= '</div>';
+				$output .= '</div>';
+				$output .= '</div>';
+				$output .= '</div>';
 			}
-			$output .= '</div>'; // close accordion
-			$output .= '</div>'; // close tab-pane
-			$is_first_content = false;
+			$output .= '</div>';
+			$output .= '</div>';
 		}
-		$output .= '</div>'; // close tab-content
-		$output .= '</div>'; // close container
+		$output .= '</div>';
+		$output .= '</div>';
 
 		return $output;
+	}
+
+	/**
+	 * Checks the status of a property across all units within an event.
+	 *
+	 * @param object $event      The event object.
+	 * @param string $status_key The key of the status property to check (e.g., 'isResultPublished').
+	 * @return bool True if all units have the status as true, or if the main event has it.
+	 */
+	private function check_units_for_status($event, $status_key) {
+		if (empty($event->units) || !is_array($event->units)) {
+			return $event->{$status_key} ?? false;
+		}
+
+		foreach ($event->units as $unit) {
+			if (!($unit->{$status_key} ?? false)) {
+				return false; // Found a unit with false status, so the phase status is false.
+			}
+		}
+
+		return true; // All units have the status as true.
 	}
 
 }
