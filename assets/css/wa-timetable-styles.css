@@ -53,7 +53,7 @@
 .event-item:hover,
 .event-item:focus,
 .event-item:active {
-	border: 2px solid green;
+	border: 2px solid #cfe2ff;
 	background-color: #f5f6f7;
 }
 /* Event Details and Links */
