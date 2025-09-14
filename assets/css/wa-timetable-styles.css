@@ -3,171 +3,178 @@
  * WA Timetable Styles
  * -----------------------------------------------------------------------------
  *
- * This stylesheet provides all the necessary styling for the WA Timetable plugin.
- * It is organized into sections for clarity and ease of maintenance.
- *
- * Version: 2.6.4
- *
+ * @format
  */
 
-/* ==========================================================================
-   Global and Utility Styles
-   ========================================================================== */
-
+/* Global and Navigation */
 .wa-timetable-container ul.nav-tabs,
 .wa-timetable-container ul.nav-pills,
 .nav-pills {
-  padding-left: 0 !important;
-  padding-bottom: 0 !important;
-  list-style-type: none !important;
+	padding-left: 0 !important;
+	padding-bottom: 0 !important;
+	list-style-type: none !important;
 }
-
-.wa-timetable-error {
-  color: #dc3545;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  padding: 15px;
-  border-radius: 8px;
-}
-
-.wa-timetable-message {
-  color: #004085;
-  background-color: #cce5ff;
-  border: 1px solid #b8daff;
-  padding: 15px;
-  border-radius: 8px;
-}
-
-/* ==========================================================================
-   Navigation Tabs
-   ========================================================================== */
-
 .nav-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
-
-/* ==========================================================================
-   Accordion and Session Headers
-   ========================================================================== */
-
+/* Accordion and Session Headers */
 .accordion-button {
-  padding: 8px;
-  background-color: #fff;
+	padding: 8px;
+	background-color: #fff;
 }
-
 .accordion-button.collapsed {
-  background-color: #f9f9f9;
+	background-color: #f9f9f9;
 }
-
 .session-name {
-  font-size: 20px;
-  font-weight: 600;
+	font-size: 20px;
+	font-weight: 600;
 }
-
 .event-count {
-  font-size: 14px;
+	font-size: 14px;
 }
-
-/* ==========================================================================
-   Events List and Items
-   ========================================================================== */
-
+/* Events List and Items */
 .events-list {
-  background-color: #f5f6f7;
-  padding: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+	background-color: #f5f6f7;
+	padding: 10px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
-
 .event-item {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 2px solid transparent;
-  transition: background-color 0.2s ease-in-out;
-  background-color: #fff;
+	padding: 8px 10px;
+	border-radius: 6px;
+	border: 2px solid transparent;
+	transition: background-color 0.2s ease-in-out;
+	background-color: #fff;
 }
-
 .event-item:hover,
 .event-item:focus,
 .event-item:active {
-  border: 2px solid green;
+	border: 2px solid green;
+	background-color: #f5f6f7;
 }
-
-/* ==========================================================================
-   Event Details and Links
-   ========================================================================== */
-
+/* Event Details and Links */
 .event-item-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+	display: grid;
+	justify-content: space-between;
+	grid-template-columns: 60% 40%;
 }
-
 .event-details-left {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 60%;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	width: 100%;
+	justify-content: space-between;
 }
-
-.event-name {
-  color: rgba(0, 0, 0, 0.85);
-  font-size: 18px;
+/* Live Badge Styles */
+.live-badge {
+	background-color: #dc3545;
+	color: white;
+	padding: 4px 8px;
+	font-size: 10px;
+	border-radius: 9999px;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	max-height: 20px;
 }
-
-.event-phase-container {
-  font-size: 13px;
-  font-weight: 600;
+.pulse-circle {
+	width: 8px;
+	height: 8px;
+	background-color: #fff;
+	border-radius: 50%;
+	animation: pulse-animation 1.5s infinite;
 }
-
-.event-details-right {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  width: 40%;
+@keyframes pulse-animation {
+	0% {
+		box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+	}
+	70% {
+		box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+	}
 }
-
+.event-name,
 .event-time {
-  font-weight: 500;
-  color: #444;
+	color: rgba(0, 0, 0, 0.85);
+	font-size: 18px;
 }
-
+.event-phase-container,
 .event-links {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
+	font-size: 13px;
+	font-weight: 500;
 }
-
+.event-details-right {
+	text-align: right;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 4px;
+	justify-content: space-between;
+}
+.event-links {
+	display: flex;
+	flex-direction: row;
+	gap: 4px;
+}
 .event-links a {
-  color: #663399;
-  text-decoration: none;
-  transition: color 0.2s ease-in-out;
+	color: #663399;
+	text-decoration: none;
+	transition: color 0.2s ease-in-out;
 }
-
 .event-links a:hover {
-  color: #441166;
-  text-decoration: underline;
+	color: #441166;
+	text-decoration: none;
+}
+.event-links a span {
+	border-radius: 4px;
+	padding: 4px 6px;
+	line-height: 1;
+}
+.event-links a span.results-link {
+	background-color: #cefbbb;
+	color: black;
+}
+.event-links a span.startlist-link {
+	background-color: #fbfbbb;
+	color: black;
+}
+.event-links a span.summary-link {
+	background-color: black;
+	color: white;
 }
 
-/* ==========================================================================
-   Responsive Styles
-   ========================================================================== */
-
+/* Utility and Responsive */
+.wa-timetable-error {
+	color: #dc3545;
+	background-color: #f8d7da;
+	border: 1px solid #f5c6cb;
+	padding: 15px;
+	border-radius: 8px;
+}
+.wa-timetable-message {
+	color: #004085;
+	background-color: #cce5ff;
+	border: 1px solid #b8daff;
+	padding: 15px;
+	border-radius: 8px;
+}
 @media (max-width: 576px) {
-  .event-name {
-    color: rgba(0, 0, 0, 0.85);
-    font-size: 16px;
-  }
-
-  .event-phase-container {
-    font-size: 12px;
-    font-weight: 600;
-  }
+	.event-name,
+	.event-time {
+		font-size: 15px;
+	}
+	.event-phase-container,
+	.event-links {
+		font-size: 12px;
+	}
+	.event-links {
+		flex-direction: column;
+	}
 }
