@@ -3,24 +3,24 @@
 /**
  * WA Timetable (Tokyo 2025)
  *
- * @package  WA-Timetable
- * @author   Thomas Mirmo
+ * @package 		WA-Timetable
+ * @author 		Thomas Mirmo
  * @copyright 2025 Thomas Mirmo
- * @license  GPL-2.0-or-later
+ * @license 		GPL-2.0-or-later
  *
  * @wordpress-plugin
- * Plugin Name:  WA Timetable (Tokyo 2025)
- * Plugin URI:   https://github.com/smoothdesigns/wa-timetable
- * Description:  Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time.
- * Version:  3.0.0
- * Requires at least:  5.3
+ * Plugin Name: 		WA Timetable (Tokyo 2025)
+ * Plugin URI: 	https://github.com/smoothdesigns/wa-timetable
+ * Description: 		Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time.
+ * Version: 		3.9.0
+ * Requires at least: 		5.3
  * Tested up to: 6.8.2
  * Requires PHP: 7.2
- * Author:  Thomas Mirmo
- * Author URI:   https://github.com/smoothdesigns
- * Text Domain:  wa-timetable
- * License:  GPL v2 or later
- * License URI:  http://www.gnu.org/licenses/gpl-2.0.txt
+ * Author: 	Thomas Mirmo
+ * Author URI: 	 https://github.com/smoothdesigns
+ * Text Domain: 		wa-timetable
+ * License: 		GPL v2 or later
+ * License URI: 		http://www.gnu.gnu.org/licenses/gpl-2.0.txt
  */
 
 if (!defined('ABSPATH')) {
@@ -35,11 +35,14 @@ if (!class_exists('WAGitHubUpdater')) {
 /**
  * Main class for the WA Timetable Plugin.
  */
-class WA_Timetable_Main_Plugin {
+class WA_Timetable_Main_Plugin
+{
 	/**
 	 * Constructor.
+	 * Registers hooks for shortcode, scripts, and updates.
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		// Register the shortcode
 		add_shortcode('wa_timetable', [$this, 'render_shortcode']);
 		// Enqueue styles and scripts
@@ -53,8 +56,10 @@ class WA_Timetable_Main_Plugin {
 
 	/**
 	 * Enqueues Bootstrap CSS and JS.
+	 * Checks if dependencies are already enqueued to prevent conflicts.
 	 */
-	public function enqueue_scripts() {
+	public function enqueue_scripts()
+	{
 		// Check if Bootstrap 5 is already enqueued to avoid conflicts
 		if (!wp_style_is('bootstrap', 'enqueued')) {
 			wp_enqueue_style(
@@ -93,11 +98,12 @@ class WA_Timetable_Main_Plugin {
 	/**
 	 * Adds integrity and crossorigin attributes to the Font Awesome stylesheet.
 	 *
-	 * @param string $tag   The HTML link tag for the stylesheet.
-	 * @param string $handle  The stylesheet handle.
+	 * @param string $tag The HTML link tag for the stylesheet.
+	 * @param string $handle The stylesheet handle.
 	 * @return string The modified HTML link tag.
 	 */
-	public function add_integrity_and_crossorigin($tag, $handle) {
+	public function add_integrity_and_crossorigin($tag, $handle)
+	{
 		if ('font-awesome' === $handle) {
 			$integrity = 'sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==';
 			$new_attributes = ' integrity="' . $integrity . '" crossorigin="anonymous"';
@@ -112,7 +118,8 @@ class WA_Timetable_Main_Plugin {
 	 *
 	 * @return string The rendered HTML output.
 	 */
-	public function render_shortcode() {
+	public function render_shortcode()
+	{
 		// 1. Data Extraction
 		$extractor = new WA_Timetable_Data_Extractor();
 		$data = $extractor->extract();
@@ -133,19 +140,20 @@ class WA_Timetable_Main_Plugin {
 		$view = new WA_Timetable_View();
 		return $view->generate_html($processed_data, $data);
 	}
-
 }
 
 /**
  * Handles all data fetching and extraction logic.
  */
-class WA_Timetable_Data_Extractor {
+class WA_Timetable_Data_Extractor
+{
 	/**
 	 * Extracts the __NEXT_DATA__ JSON from the website's HTML.
 	 *
 	 * @return object|WP_Error The decoded JSON object or a WP_Error on failure.
 	 */
-	public function extract() {
+	public function extract()
+	{
 		$url = 'https://worldathletics.org/competitions/world-athletics-championships/tokyo25/timetable';
 
 		$response = wp_remote_get($url, [
@@ -162,7 +170,7 @@ class WA_Timetable_Data_Extractor {
 			return new WP_Error('empty_body', 'Could not retrieve timetable content from the URL.');
 		}
 
-		// New: Use a regular expression to find the script tag and extract its content.
+		// Use a regular expression to find the script tag and extract its content.
 		$pattern = '/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s';
 		$matches = [];
 
@@ -183,20 +191,21 @@ class WA_Timetable_Data_Extractor {
 			return new WP_Error('json_not_found', 'The data script tag was not found in the page source.');
 		}
 	}
-
 }
 
 /**
  * Handles all data processing and formatting.
  */
-class WA_Timetable_Processor {
+class WA_Timetable_Processor
+{
 	/**
 	 * Processes raw data into a structured format grouped by date and session.
 	 *
 	 * @param object $data The decoded JSON data.
 	 * @return array The processed data, grouped by date.
 	 */
-	public function process($data) {
+	public function process($data)
+	{
 		$event_timetable = $data->props->pageProps->phases;
 
 		$expanded_timetable = [];
@@ -246,13 +255,9 @@ class WA_Timetable_Processor {
 
 		$grouped_data = [];
 
-		// Calculate the time difference between Tokyo (JST) and Jamaica (EST/EDT)
+		// Define the timezones
 		$tokyo_timezone = new DateTimeZone('Asia/Tokyo');
 		$jamaica_timezone = new DateTimeZone('America/Jamaica');
-		$tokyo_datetime = new DateTime('now', $tokyo_timezone);
-		$jamaica_offset = $jamaica_timezone->getOffset($tokyo_datetime);
-		$tokyo_offset = $tokyo_timezone->getOffset($tokyo_datetime);
-		$time_difference_in_seconds = $tokyo_offset - $jamaica_offset;
 
 		// Sort by date and time first to ensure events are in order
 		usort($event_timetable, function ($a, $b) {
@@ -266,23 +271,24 @@ class WA_Timetable_Processor {
 		$day_number = 1;
 
 		foreach ($event_timetable as $event) {
-			// Convert time from Tokyo to Jamaica
-			$event_datetime = new DateTime($event->phaseDateAndTime ?? '', $tokyo_timezone);
-			$event_datetime->setTimestamp($event_datetime->getTimestamp() - $time_difference_in_seconds);
+			// Create a DateTime object from the source string, explicitly setting the Tokyo timezone
+			$event_datetime_tokyo = new DateTime($event->phaseDateAndTime ?? '', $tokyo_timezone);
 
-			$event->jamaica_time = $event_datetime->format('g:i A');
-			$event->jamaica_start_time = $event_datetime->getTimestamp();
+			// Convert to the Jamaica timezone and store the new DateTime object
+			$event_datetime_jamaica = $event_datetime_tokyo->setTimezone($jamaica_timezone);
+
+			// Store the new DateTime object directly on the event.
+			$event->jamaica_datetime_object = $event_datetime_jamaica;
 
 			// Add the end time to the event object for accurate live checking
 			if (isset($event->phaseEndDateAndTime) && !empty($event->phaseEndDateAndTime)) {
-				$event_end_datetime = new DateTime($event->phaseEndDateAndTime, $tokyo_timezone);
-				$event_end_datetime->setTimestamp($event_end_datetime->getTimestamp() - $time_difference_in_seconds);
-				$event->jamaica_end_time = $event_end_datetime->getTimestamp();
+				$event_end_datetime_tokyo = new DateTime($event->phaseEndDateAndTime, $tokyo_timezone);
+				$event->jamaica_end_datetime_object = $event_end_datetime_tokyo->setTimezone($jamaica_timezone);
 			} else {
-				$event->jamaica_end_time = null;
+				$event->jamaica_end_datetime_object = null;
 			}
 
-			$event_date_key = $event_datetime->format('Y-m-d');
+			$event_date_key = $event_datetime_jamaica->format('Y-m-d');
 
 			// Replace 'Morning' with 'Evening' and vice versa
 			$session_name = $event->phaseSessionName ?? 'No Session';
@@ -301,7 +307,7 @@ class WA_Timetable_Processor {
 				$interval = $start_date->diff($event_date_obj);
 				$day_number = $interval->days + 1;
 
-				$day_label = 'Day ' . $day_number . ' - ' . $event_datetime->format('M d');
+				$day_label = 'Day ' . $day_number . ' - ' . $event_datetime_jamaica->format('M d');
 			}
 
 			$grouped_data[$day_label][$session_name][] = $event;
@@ -309,13 +315,13 @@ class WA_Timetable_Processor {
 
 		return $grouped_data;
 	}
-
 }
 
 /**
  * Handles all view logic and HTML generation.
  */
-class WA_Timetable_View {
+class WA_Timetable_View
+{
 	/**
 	 * Generates the HTML for the timetable using Bootstrap tabs and a custom layout.
 	 *
@@ -323,11 +329,14 @@ class WA_Timetable_View {
 	 * @param object $full_data The full data object from __NEXT_DATA__.
 	 * @return string The HTML output.
 	 */
-	public function generate_html($phases, $full_data) {
+	public function generate_html($phases, $full_data)
+	{
 		// Determine the current date in Jamaica to set the active tab
 		$jamaica_timezone = new DateTimeZone('America/Jamaica');
 		$current_date_jamaica = new DateTime('now', $jamaica_timezone);
 		$current_date_formatted = $current_date_jamaica->format('M d');
+		// Get the current timestamp for live session logic.
+		$current_timestamp = $current_date_jamaica->getTimestamp();
 
 		// Determine the active tab ID once before generating the HTML.
 		$active_tab_id = null;
@@ -389,7 +398,6 @@ class WA_Timetable_View {
 			$output .= '<div class="accordion" id="accordion-' . $tab_id . '">';
 			foreach ($sessions_for_date as $session_name => $events_for_session) {
 				$session_id = sanitize_title($date_label . '-' . $session_name);
-				$show_class = 'show'; // All accordions are open by default.
 
 				// Check if the session is finished.
 				$all_results_published = true;
@@ -400,9 +408,12 @@ class WA_Timetable_View {
 					}
 				}
 
+				$show_class = $all_results_published ? '' : 'show';
+				$expanded_state = $all_results_published ? 'false' : 'true';
+
 				$output .= '<div class="accordion-item border-0">';
 				$output .= '<h2 class="accordion-header p-0 my-0" id="heading-' . $session_id . '">';
-				$output .= '<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $session_id . '" aria-expanded="true" aria-controls="collapse-' . $session_id . '">';
+				$output .= '<button class="accordion-button ' . ($all_results_published ? 'collapsed' : '') . '" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $session_id . '" aria-expanded="' . $expanded_state . '" aria-controls="collapse-' . $session_id . '">';
 				$output .= '<div class="session-wrapper d-flex flex-column lh-1 gap-1">';
 				$output .= '<span class="session-name" style="font-size: 20px; text-transform: uppercase;">' . esc_html($session_name);
 				if ($all_results_published) {
@@ -466,42 +477,51 @@ class WA_Timetable_View {
 					$output .= '<div class="event-details-right">';
 					$output .= '<div class="event-livetime-wrapper" style="display: flex; align-items: center; gap: 10px;">';
 
-					$is_results_published_by_units = $this->check_units_for_status($event, 'isResultPublished');
+					// The new LIVE badge logic, using time and results status.
+					$all_units_have_results = $this->check_units_for_status($event, 'isResultPublished');
 
-					// Get current time in Jamaica
-					$jamaica_timezone = new DateTimeZone('America/Jamaica');
-					$now = new DateTime('now', $jamaica_timezone);
+					// Use the single, correct DateTime object from the processor
+					$event_start_timestamp = $event->jamaica_datetime_object->getTimestamp();
 
-					// Check if the current time is between the event's start and end times
-					$is_currently_live = false;
-					if (isset($event->jamaica_end_time) && $event->jamaica_end_time !== null) {
-						$event_start_datetime = new DateTime('@' . $event->jamaica_start_time, $jamaica_timezone);
-						$event_end_datetime = new DateTime('@' . $event->jamaica_end_time, $jamaica_timezone);
-						if ($now >= $event_start_datetime && $now <= $event_end_datetime) {
-							$is_currently_live = true;
-						}
+					// Condition: current time is 5 minutes before or any time after the event's start time AND results are not yet published.
+					$should_show_live_badge = ($current_timestamp >= ($event_start_timestamp - 300)) && !$all_units_have_results;
+
+					$trigger_threshold_datetime = new DateTime();
+					$trigger_threshold_datetime->setTimestamp($event_start_timestamp - 300);
+					$trigger_threshold_datetime->setTimezone($jamaica_timezone);
+
+					// Debugging: Log key variables with explicit timezones.
+					error_log(
+						'LIVE BADGE DEBUG: ' .
+							'Event: ' . $sexName . ' ' . $disciplineName . ' - ' . $phaseName .
+							' | Server Time: ' . date('Y-m-d H:i:s') .
+							' | Current Time (Jamaica): ' . $current_date_jamaica->format('Y-m-d H:i:s') .
+							' | Event Time (Jamaica): ' . $event->jamaica_datetime_object->format('Y-m-d H:i:s') .
+							' | Trigger Threshold (Jamaica): ' . $trigger_threshold_datetime->format('Y-m-d H:i:s') .
+							' | All Results Published: ' . ($all_units_have_results ? 'true' : 'false') .
+							' | Show LIVE Badge: ' . ($should_show_live_badge ? 'true' : 'false')
+					);
+
+					if ($should_show_live_badge) {
+						$output .= '<div class="live-badge"><div class="pulse-circle"></div><span>LIVE</span></div>';
 					}
 
-					if ($is_currently_live && !$is_results_published_by_units) {
-						$output .= '<div class="live-badge">';
-						$output .= '<div class="pulse-circle"></div>';
-						$output .= '<span>LIVE</span>';
-						$output .= '</div>';
-					}
+					$output .= '<div class="event-time">' . esc_html($event->jamaica_datetime_object->format('g:i A')) . '</div>';
 
-					$output .= '<div class="event-time">' . esc_html($event->jamaica_time) . '</div>';
 					$output .= '</div>';
 					$output .= '<div class="event-links">';
 
+					// Refactored logic to display links
+					$is_results_published_by_units = $this->check_units_for_status($event, 'isResultPublished');
 					$is_startlist_published_by_units = $this->check_units_for_status($event, 'isStartlistPublished');
 					$is_summary_published_by_units = $this->check_units_for_status($event, 'isPhaseSummaryPublished');
 
-					if ($is_startlist_published_by_units && !$is_results_published_by_units) {
-						$output .= '<a href="' . esc_url($startlist_url) . '" target="_blank"><span class="startlist-link">Startlist <i class="fas fa-angle-right"></i></span></a>';
-					}
 					if ($is_results_published_by_units) {
 						$output .= '<a href="' . esc_url($results_url) . '" target="_blank"><span class="results-link">Results <i class="fas fa-angle-right"></i></span></a>';
+					} elseif ($is_startlist_published_by_units) {
+						$output .= '<a href="' . esc_url($startlist_url) . '" target="_blank"><span class="startlist-link">Startlist <i class="fas fa-angle-right"></i></span></a>';
 					}
+
 					if ($is_summary_published_by_units) {
 						$output .= '<a href="' . esc_url($summary_url) . '" target="_blank"><span class="summary-link">Summary <i class="fas fa-angle-right"></i></span></a>';
 					}
@@ -527,11 +547,12 @@ class WA_Timetable_View {
 	/**
 	 * Checks the status of a property across all units within an event.
 	 *
-	 * @param object $event   The event object.
+	 * @param object $event      The event object.
 	 * @param string $status_key The key of the status property to check (e.g., 'isResultPublished').
 	 * @return bool True if all units have the status as true, or if the main event has it.
 	 */
-	private function check_units_for_status($event, $status_key) {
+	private function check_units_for_status($event, $status_key)
+	{
 		if (empty($event->units) || !is_array($event->units)) {
 			return $event->{$status_key} ?? false;
 		}
@@ -545,7 +566,29 @@ class WA_Timetable_View {
 		return true; // All units have the status as true.
 	}
 
-}
+	/**
+	 * Checks if at least one unit within an event has results published.
+	 *
+	 * This is used for multi-unit events like qualifications where some units might have results
+	 * while others are still in progress.
+	 *
+	 * @param object $event The event object.
+	 * @return bool True if any unit has 'isResultPublished' set to true.
+	 */
+	private function is_any_unit_results_published($event)
+	{
+		if (empty($event->units) || !is_array($event->units)) {
+			return $event->isResultPublished ?? false;
+		}
 
+		foreach ($event->units as $unit) {
+			if ($unit->isResultPublished) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+}
 // Instantiate the main plugin class to get things started.
 new WA_Timetable_Main_Plugin();
