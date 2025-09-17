@@ -491,7 +491,7 @@ class WA_Timetable_View
 					$trigger_threshold_datetime->setTimezone($jamaica_timezone);
 
 					// Debugging: Log key variables with explicit timezones.
-					error_log(
+					/* error_log(
 						'LIVE BADGE DEBUG: ' .
 							'Event: ' . $sexName . ' ' . $disciplineName . ' - ' . $phaseName .
 							' | Server Time: ' . date('Y-m-d H:i:s') .
@@ -500,7 +500,7 @@ class WA_Timetable_View
 							' | Trigger Threshold (Jamaica): ' . $trigger_threshold_datetime->format('Y-m-d H:i:s') .
 							' | All Results Published: ' . ($all_units_have_results ? 'true' : 'false') .
 							' | Show LIVE Badge: ' . ($should_show_live_badge ? 'true' : 'false')
-					);
+					); */
 
 					if ($should_show_live_badge) {
 						$output .= '<div class="live-badge"><div class="pulse-circle"></div><span>LIVE</span></div>';
