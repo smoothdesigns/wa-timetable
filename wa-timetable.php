@@ -12,7 +12,7 @@
  * Plugin Name: 		WA Timetable (Tokyo 2025)
  * Plugin URI: 	https://github.com/smoothdesigns/wa-timetable
  * Description: 		Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time.
- * Version: 		3.9.0
+ * Version: 		3.9.3
  * Requires at least: 		5.3
  * Tested up to: 6.8.2
  * Requires PHP: 7.2
@@ -20,47 +20,55 @@
  * Author URI: 	 https://github.com/smoothdesigns
  * Text Domain: 		wa-timetable
  * License: 		GPL v2 or later
- * License URI: 		http://www.gnu.gnu.org/licenses/gpl-2.0.txt
+ * License URI: 		http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
+// Exit if accessed directly to prevent direct file access.
 if (!defined('ABSPATH')) {
-	exit; // Exit if accessed directly.
+	exit;
 }
 
-// Include the updater class.
+// Include the GitHub updater class for self-updates.
 if (!class_exists('WAGitHubUpdater')) {
 	require_once __DIR__ . '/includes/class-wa-github-updater.php';
 }
 
 /**
  * Main class for the WA Timetable Plugin.
+ *
+ * Orchestrates the plugin's core functionality, including shortcode registration,
+ * script enqueuing, and the overall data flow.
  */
 class WA_Timetable_Main_Plugin
 {
 	/**
 	 * Constructor.
-	 * Registers hooks for shortcode, scripts, and updates.
+	 * Registers essential WordPress hooks.
 	 */
 	public function __construct()
 	{
-		// Register the shortcode
+		// Register the shortcode for displaying the timetable.
 		add_shortcode('wa_timetable', [$this, 'render_shortcode']);
-		// Enqueue styles and scripts
+
+		// Enqueue public-facing styles and scripts.
 		add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
-		// Add integrity and crossorigin attributes to Font Awesome stylesheet
+
+		// Add integrity and crossorigin attributes to the Font Awesome stylesheet for security.
 		add_filter('style_loader_tag', [$this, 'add_integrity_and_crossorigin'], 10, 2);
 
-		// Instantiate the updater unconditionally. The updater's own logic will handle the version comparison.
-		new WAGitHubUpdater(__FILE__, 'https://github.com/smoothdesigns/wa-timetable/trunk/');
+		// Instantiate the updater to enable automatic plugin updates from GitHub.
+		// CORRECTED URL: Changed from `github.com/smoothdesigns/wa-timetable/trunk/` to `raw.githubusercontent.com/smoothdesigns/wa-timetable/main/`
+		new WAGitHubUpdater(__FILE__, 'https://raw.githubusercontent.com/smoothdesigns/wa-timetable/main/');
 	}
 
 	/**
-	 * Enqueues Bootstrap CSS and JS.
-	 * Checks if dependencies are already enqueued to prevent conflicts.
+	 * Enqueues external and local CSS and JavaScript files.
+	 *
+	 * Checks for existing enqueued dependencies to prevent conflicts with other themes or plugins.
 	 */
 	public function enqueue_scripts()
 	{
-		// Check if Bootstrap 5 is already enqueued to avoid conflicts
+		// Enqueue Bootstrap 5 CSS if it's not already loaded.
 		if (!wp_style_is('bootstrap', 'enqueued')) {
 			wp_enqueue_style(
 				'bootstrap',
@@ -70,7 +78,7 @@ class WA_Timetable_Main_Plugin
 			);
 		}
 
-		// Check if Font Awesome is already enqueued to avoid conflicts
+		// Enqueue Font Awesome for icons if it's not already loaded.
 		if (!wp_style_is('font-awesome') || !wp_style_is('fontawesome')) {
 			wp_enqueue_style(
 				'font-awesome',
@@ -80,10 +88,10 @@ class WA_Timetable_Main_Plugin
 			);
 		}
 
-		// Enqueue custom plugin styles with a dynamic version
+		// Enqueue the custom plugin stylesheet with a filemtime-based version for cache busting.
 		wp_enqueue_style('wa-timetable-style', plugin_dir_url(__FILE__) . 'assets/css/wa-timetable-styles.css', [], filemtime(plugin_dir_path(__FILE__) . 'assets/css/wa-timetable-styles.css'));
 
-		// Check if Bootstrap 5 JS is already enqueued to avoid conflicts
+		// Enqueue Bootstrap 5 JS if it's not already loaded.
 		if (!wp_script_is('bootstrap', 'enqueued')) {
 			wp_enqueue_script(
 				'bootstrap-js',
@@ -96,31 +104,31 @@ class WA_Timetable_Main_Plugin
 	}
 
 	/**
-	 * Adds integrity and crossorigin attributes to the Font Awesome stylesheet.
+	 * Adds `integrity` and `crossorigin` attributes to the Font Awesome stylesheet link tag.
 	 *
-	 * @param string $tag The HTML link tag for the stylesheet.
+	 * @param string $tag The HTML link tag.
 	 * @param string $handle The stylesheet handle.
-	 * @return string The modified HTML link tag.
+	 * @return string The modified HTML link tag with integrity attributes.
 	 */
 	public function add_integrity_and_crossorigin($tag, $handle)
 	{
 		if ('font-awesome' === $handle) {
 			$integrity = 'sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==';
 			$new_attributes = ' integrity="' . $integrity . '" crossorigin="anonymous"';
-			// Use a regular expression to find the closing bracket and insert the attributes.
+			// Use a regular expression to insert attributes before the closing bracket.
 			$tag = preg_replace('/(\/>|\>)/', $new_attributes . '$1', $tag);
 		}
 		return $tag;
 	}
 
 	/**
-	 * Renders the timetable by fetching, processing, and displaying the data.
+	 * Renders the timetable by initiating the data extraction, processing, and view generation.
 	 *
-	 * @return string The rendered HTML output.
+	 * @return string The complete HTML output for the timetable.
 	 */
 	public function render_shortcode()
 	{
-		// 1. Data Extraction
+		// Step 1: Data Extraction
 		$extractor = new WA_Timetable_Data_Extractor();
 		$data = $extractor->extract();
 
@@ -132,23 +140,27 @@ class WA_Timetable_Main_Plugin
 			return '<div class="wa-timetable-message">Could not find timetable data.</div>';
 		}
 
-		// 2. Data Processing (grouping by date and session)
+		// Step 2: Data Processing (grouping by date and session)
 		$processor = new WA_Timetable_Processor();
 		$processed_data = $processor->process($data);
 
-		// 3. View Generation (Bootstrap tabs and custom layout)
+		// Step 3: View Generation (Bootstrap tabs and custom layout)
 		$view = new WA_Timetable_View();
 		return $view->generate_html($processed_data, $data);
 	}
 }
 
+//================================================================================
+// DATA EXTRACTION
+//================================================================================
+
 /**
- * Handles all data fetching and extraction logic.
+ * Handles all data fetching and extraction logic from the source website.
  */
 class WA_Timetable_Data_Extractor
 {
 	/**
-	 * Extracts the __NEXT_DATA__ JSON from the website's HTML.
+	 * Extracts the '__NEXT_DATA__' JSON from the source website's HTML.
 	 *
 	 * @return object|WP_Error The decoded JSON object or a WP_Error on failure.
 	 */
@@ -193,32 +205,34 @@ class WA_Timetable_Data_Extractor
 	}
 }
 
+//================================================================================
+// DATA PROCESSING
+//================================================================================
+
 /**
- * Handles all data processing and formatting.
+ * Handles all data processing, including timezone conversion and event grouping.
  */
 class WA_Timetable_Processor
 {
 	/**
 	 * Processes raw data into a structured format grouped by date and session.
 	 *
+	 * This method handles grouped qualification events, timezone conversions, and sorts events.
+	 *
 	 * @param object $data The decoded JSON data.
-	 * @return array The processed data, grouped by date.
+	 * @return array The processed data, grouped by day and session.
 	 */
 	public function process($data)
 	{
 		$event_timetable = $data->props->pageProps->phases;
 
 		$expanded_timetable = [];
-		$processed_qualifications = [];
 
+		// Handle grouped qualification events
 		foreach ($event_timetable as $event) {
-			// Check if the event has units and is a qualification event
+			// Check if the event has units and is a grouped qualification event.
 			if (!empty($event->units) && isset($event->units[0]->unitType) && $event->units[0]->unitType === 'G') {
-
-				// Generate a unique key for the discipline to check for concurrency
-				$discipline_key = $event->disciplineName . '_' . $event->sexName;
-
-				// Group units by their start time
+				// Group units by their start time.
 				$units_by_time = [];
 				foreach ($event->units as $unit) {
 					$start_time = $unit->startDateTime;
@@ -231,13 +245,11 @@ class WA_Timetable_Processor
 				foreach ($units_by_time as $start_time => $units) {
 					$unit_event = clone $event;
 					$unit_event->phaseDateAndTime = $start_time;
-
-					// Add a new property for a clean URL slug, separate from the display name
 					$unit_event->phaseUrlSlug = sanitize_title($event->phaseName);
 
-					// If multiple units share the same start time, it's concurrent
+					// If multiple units start at the same time, it's a concurrent event.
 					if (count($units) > 1) {
-						$unit_event->phaseName = $event->phaseName; // No group label for concurrent groups
+						$unit_event->phaseName = $event->phaseName;
 					} else {
 						$unit_event->phaseName = $event->phaseName . ' - Group ' . ($units[0]->unitName ?? '');
 					}
@@ -245,42 +257,39 @@ class WA_Timetable_Processor
 					$expanded_timetable[] = $unit_event;
 				}
 			} else {
-				// If it's not a grouped qualification event, add the original phase.
+				// If it's not a grouped event, add the original phase.
 				$expanded_timetable[] = $event;
 			}
 		}
 
-		// Now, process the new expanded list of events.
+		// Reassign the processed list to event_timetable for the next steps.
 		$event_timetable = $expanded_timetable;
-
 		$grouped_data = [];
 
-		// Define the timezones
+		// Define the timezones for conversion.
 		$tokyo_timezone = new DateTimeZone('Asia/Tokyo');
 		$jamaica_timezone = new DateTimeZone('America/Jamaica');
 
-		// Sort by date and time first to ensure events are in order
+		// Sort events by date and time to ensure a correct chronological display.
 		usort($event_timetable, function ($a, $b) {
 			$dateA = new DateTime($a->phaseDateAndTime ?? '');
 			$dateB = new DateTime($b->phaseDateAndTime ?? '');
 			return $dateA <=> $dateB;
 		});
 
-		// Group events by day and session
+		// Group events by day and session.
 		$current_date = '';
 		$day_number = 1;
 
 		foreach ($event_timetable as $event) {
-			// Create a DateTime object from the source string, explicitly setting the Tokyo timezone
+			// Create a DateTime object in the source (Tokyo) timezone.
 			$event_datetime_tokyo = new DateTime($event->phaseDateAndTime ?? '', $tokyo_timezone);
 
-			// Convert to the Jamaica timezone and store the new DateTime object
+			// Convert to the target (Jamaica) timezone.
 			$event_datetime_jamaica = $event_datetime_tokyo->setTimezone($jamaica_timezone);
-
-			// Store the new DateTime object directly on the event.
 			$event->jamaica_datetime_object = $event_datetime_jamaica;
 
-			// Add the end time to the event object for accurate live checking
+			// Convert end time for live checking, if available.
 			if (isset($event->phaseEndDateAndTime) && !empty($event->phaseEndDateAndTime)) {
 				$event_end_datetime_tokyo = new DateTime($event->phaseEndDateAndTime, $tokyo_timezone);
 				$event->jamaica_end_datetime_object = $event_end_datetime_tokyo->setTimezone($jamaica_timezone);
@@ -290,7 +299,7 @@ class WA_Timetable_Processor
 
 			$event_date_key = $event_datetime_jamaica->format('Y-m-d');
 
-			// Replace 'Morning' with 'Evening' and vice versa
+			// Swap session names to match the new timezone.
 			$session_name = $event->phaseSessionName ?? 'No Session';
 			if ($session_name === 'Morning Session') {
 				$session_name = 'Evening Session';
@@ -298,10 +307,10 @@ class WA_Timetable_Processor
 				$session_name = 'Morning Session';
 			}
 
+			// Update day labels for the tabs.
 			if ($event_date_key !== $current_date) {
 				$current_date = $event_date_key;
 
-				// Update day labels based on the new date
 				$start_date = new DateTime('2025-09-12', $jamaica_timezone);
 				$event_date_obj = new DateTime($event_date_key, $jamaica_timezone);
 				$interval = $start_date->diff($event_date_obj);
@@ -317,42 +326,42 @@ class WA_Timetable_Processor
 	}
 }
 
+//================================================================================
+// VIEW GENERATION
+//================================================================================
+
 /**
- * Handles all view logic and HTML generation.
+ * Handles all view logic and HTML generation for the timetable display.
  */
 class WA_Timetable_View
 {
 	/**
-	 * Generates the HTML for the timetable using Bootstrap tabs and a custom layout.
+	 * Generates the complete HTML output for the timetable.
 	 *
 	 * @param array $phases The processed timetable data, grouped by date.
-	 * @param object $full_data The full data object from __NEXT_DATA__.
-	 * @return string The HTML output.
+	 * @param object $full_data The full data object from __NEXT_DATA__ for slug lookups.
+	 * @return string The generated HTML.
 	 */
 	public function generate_html($phases, $full_data)
 	{
-		// Determine the current date in Jamaica to set the active tab
+		// Determine the current date in Jamaica to set the active tab.
 		$jamaica_timezone = new DateTimeZone('America/Jamaica');
 		$current_date_jamaica = new DateTime('now', $jamaica_timezone);
 		$current_date_formatted = $current_date_jamaica->format('M d');
-		// Get the current timestamp for live session logic.
 		$current_timestamp = $current_date_jamaica->getTimestamp();
 
-		// Determine the active tab ID once before generating the HTML.
+		// Find the active tab ID based on the current date.
 		$active_tab_id = null;
 		foreach (array_keys($phases) as $date_label) {
-			$parts = explode(' - ', $date_label);
-			$date_part = isset($parts[1]) ? $parts[1] : '';
-
+			$date_part = explode(' - ', $date_label)[1] ?? '';
 			if ($date_part === $current_date_formatted) {
 				$active_tab_id = sanitize_title($date_label);
-				break; // Found the current day, no need to check further.
+				break;
 			}
 		}
 
-		// If no tab matches the current day, default to the first one.
+		// Default to the first tab if the current day isn't found.
 		if (is_null($active_tab_id)) {
-			// Fix: Capture the result of array_keys() in a variable before passing to reset().
 			$date_labels = array_keys($phases);
 			$first_date_label = reset($date_labels);
 			$active_tab_id = sanitize_title($first_date_label);
@@ -360,25 +369,26 @@ class WA_Timetable_View
 
 		$output = '<div class="wa-timetable-container">';
 
-		// Tabs navigation
+		// Generate the Bootstrap tabs navigation.
 		$output .= '<ul class="nav nav-pills nav-justified my-0" id="timetableTabs" role="tablist">';
 		foreach (array_keys($phases) as $date_label) {
 			$tab_id = sanitize_title($date_label);
-
 			$parts = explode(' - ', $date_label);
-			$date_part = isset($parts[1]) ? $parts[1] : '';
+			$date_part = $parts[1] ?? '';
+			$day_part = $parts[0] ?? '';
 
 			$active_class = ($tab_id === $active_tab_id) ? 'active' : '';
+			$day_class = '';
 
-			$day_part = isset($parts[0]) ? $parts[0] : '';
 			if ($date_part === $current_date_formatted) {
 				$day_part = 'TODAY';
+				$day_class = 'today-text';
 			}
 
 			$output .= '<li class="nav-item day-item my-0">';
 			$output .= '<a class="nav-link ' . $active_class . '" id="' . $tab_id . '-tab" data-bs-toggle="tab" data-bs-target="#' . $tab_id . '" type="button" role="tab" aria-controls="' . $tab_id . '" aria-selected="' . ($active_class === 'active' ? 'true' : 'false') . '">';
 			$output .= '<div class="d-flex flex-column">';
-			$output .= '<span style="font-size: 10px; font-weight: normal; text-transform: uppercase;">' . esc_html($day_part) . '</span>';
+			$output .= '<span class="' . esc_attr($day_class) . '" style="font-size: 10px; font-weight: bold; text-transform: uppercase;">' . esc_html($day_part) . '</span>';
 			$output .= '<span style="font-size: 14px; font-weight: bold;">' . esc_html($date_part) . '</span>';
 			$output .= '</div>';
 			$output .= '</a>';
@@ -386,7 +396,7 @@ class WA_Timetable_View
 		}
 		$output .= '</ul>';
 
-		// Tab content panes
+		// Generate the tab content panes.
 		$output .= '<div class="tab-content mt-3">';
 		foreach ($phases as $date_label => $sessions_for_date) {
 			$tab_id = sanitize_title($date_label);
@@ -394,12 +404,12 @@ class WA_Timetable_View
 
 			$output .= '<div class="tab-pane fade ' . $active_class . '" id="' . $tab_id . '" role="tabpanel" aria-labelledby="' . $tab_id . '-tab">';
 
-			// Accordion for sessions within the day
+			// Accordion for sessions within the day.
 			$output .= '<div class="accordion" id="accordion-' . $tab_id . '">';
 			foreach ($sessions_for_date as $session_name => $events_for_session) {
 				$session_id = sanitize_title($date_label . '-' . $session_name);
 
-				// Check if the session is finished.
+				// Determine if the session is finished.
 				$all_results_published = true;
 				foreach ($events_for_session as $event) {
 					if (!$this->check_units_for_status($event, 'isResultPublished')) {
@@ -464,54 +474,41 @@ class WA_Timetable_View
 					$sanitized_phase_url_slug = $event->phaseUrlSlug ?? sanitize_title($phaseName);
 
 					$base_url = 'https://worldathletics.org/competitions/world-athletics-championships/tokyo25/results/';
-					$startlist_url = $base_url . $sanitized_sexName . '/' . $discipline_slug . '/' . $sanitized_phase_url_slug . '/startlist';
-					$results_url = $base_url . $sanitized_sexName . '/' . $discipline_slug . '/' . $sanitized_phase_url_slug . '/results';
-					$summary_url = $base_url . $sanitized_sexName . '/' . $discipline_slug . '/' . $sanitized_phase_url_slug . '/summary';
+
+					// Conditionally build URL based on the event phase type (decathlon/heptathlon have a different slug structure).
+					if ($is_decathlon !== false || $is_heptathlon !== false) {
+						$url_path = $sanitized_sexName . '/' . $sanitized_phase_url_slug . '/' . $discipline_slug;
+					} else {
+						$url_path = $sanitized_sexName . '/' . $discipline_slug . '/' . $sanitized_phase_url_slug;
+					}
+
+					$startlist_url = $base_url . $url_path . '/startlist';
+					$results_url = $base_url . $url_path . '/results';
+					$summary_url = $base_url . $url_path . '/summary';
 
 					$output .= '<div class="event-item" id="event-' . esc_attr($event_id) . '-' . esc_attr($phase_order) . '">';
 					$output .= '<div class="event-item-content">';
 					$output .= '<div class="event-details-left">';
 					$output .= '<div class="event-name">' . esc_html($sexName) . ' ' . esc_html($disciplineName) . '</div>';
-					$output .= '<div class="event-phase-container"><span style="border-radius: 4px; padding: 2px 6px; line-height: 1; background-color: ' . $bgColor . ';">' . esc_html($phaseName) . '</span></div>';
+					$output .= '<div class="event-phase-container"><span style="border-radius: 4px; padding: 2px 6px; line-height: 1; background-color: ' . esc_attr($bgColor) . ';">' . esc_html($phaseName) . '</span></div>';
 					$output .= '</div>';
 					$output .= '<div class="event-details-right">';
-					$output .= '<div class="event-livetime-wrapper" style="display: flex; align-items: center; gap: 10px;">';
+					$output .= '<div class="event-livetime-wrapper">';
 
-					// The new LIVE badge logic, using time and results status.
+					// Live badge logic: check if the event is live based on time and results status.
 					$all_units_have_results = $this->check_units_for_status($event, 'isResultPublished');
-
-					// Use the single, correct DateTime object from the processor
 					$event_start_timestamp = $event->jamaica_datetime_object->getTimestamp();
-
-					// Condition: current time is 5 minutes before or any time after the event's start time AND results are not yet published.
 					$should_show_live_badge = ($current_timestamp >= ($event_start_timestamp - 300)) && !$all_units_have_results;
-
-					$trigger_threshold_datetime = new DateTime();
-					$trigger_threshold_datetime->setTimestamp($event_start_timestamp - 300);
-					$trigger_threshold_datetime->setTimezone($jamaica_timezone);
-
-					// Debugging: Log key variables with explicit timezones.
-					/* error_log(
-						'LIVE BADGE DEBUG: ' .
-							'Event: ' . $sexName . ' ' . $disciplineName . ' - ' . $phaseName .
-							' | Server Time: ' . date('Y-m-d H:i:s') .
-							' | Current Time (Jamaica): ' . $current_date_jamaica->format('Y-m-d H:i:s') .
-							' | Event Time (Jamaica): ' . $event->jamaica_datetime_object->format('Y-m-d H:i:s') .
-							' | Trigger Threshold (Jamaica): ' . $trigger_threshold_datetime->format('Y-m-d H:i:s') .
-							' | All Results Published: ' . ($all_units_have_results ? 'true' : 'false') .
-							' | Show LIVE Badge: ' . ($should_show_live_badge ? 'true' : 'false')
-					); */
 
 					if ($should_show_live_badge) {
 						$output .= '<div class="live-badge"><div class="pulse-circle"></div><span>LIVE</span></div>';
 					}
 
 					$output .= '<div class="event-time">' . esc_html($event->jamaica_datetime_object->format('g:i A')) . '</div>';
-
 					$output .= '</div>';
 					$output .= '<div class="event-links">';
 
-					// Refactored logic to display links
+					// Display links based on the status of each link type.
 					$is_results_published_by_units = $this->check_units_for_status($event, 'isResultPublished');
 					$is_startlist_published_by_units = $this->check_units_for_status($event, 'isStartlistPublished');
 					$is_summary_published_by_units = $this->check_units_for_status($event, 'isPhaseSummaryPublished');
@@ -547,48 +544,31 @@ class WA_Timetable_View
 	/**
 	 * Checks the status of a property across all units within an event.
 	 *
+	 * This function returns true only if the specified status key is true for ALL units.
+	 * This is a stricter check than just checking the parent event's status.
+	 *
 	 * @param object $event      The event object.
 	 * @param string $status_key The key of the status property to check (e.g., 'isResultPublished').
-	 * @return bool True if all units have the status as true, or if the main event has it.
+	 * @return bool True if all units have the status as true, otherwise false.
 	 */
 	private function check_units_for_status($event, $status_key)
 	{
+		// If the event has no units, rely on the main event's status.
 		if (empty($event->units) || !is_array($event->units)) {
 			return $event->{$status_key} ?? false;
 		}
 
+		// Iterate through each unit and return false if any unit does not have the status.
 		foreach ($event->units as $unit) {
 			if (!($unit->{$status_key} ?? false)) {
-				return false; // Found a unit with false status, so the phase status is false.
+				return false;
 			}
 		}
 
-		return true; // All units have the status as true.
-	}
-
-	/**
-	 * Checks if at least one unit within an event has results published.
-	 *
-	 * This is used for multi-unit events like qualifications where some units might have results
-	 * while others are still in progress.
-	 *
-	 * @param object $event The event object.
-	 * @return bool True if any unit has 'isResultPublished' set to true.
-	 */
-	private function is_any_unit_results_published($event)
-	{
-		if (empty($event->units) || !is_array($event->units)) {
-			return $event->isResultPublished ?? false;
-		}
-
-		foreach ($event->units as $unit) {
-			if ($unit->isResultPublished) {
-				return true;
-			}
-		}
-
-		return false;
+		// All units have the status as true.
+		return true;
 	}
 }
-// Instantiate the main plugin class to get things started.
+
+// Instantiate the main plugin class to begin execution.
 new WA_Timetable_Main_Plugin();
