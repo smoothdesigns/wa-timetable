@@ -1,73 +1,48 @@
-* **Title:** WA Timetable (Tokyo 2025)
-* **Tags:** timetable, sports, world athletics, tokyo 2025, world championships, track and field
-* **Requires:** 5.3
-* **Tested:** 6.8.2
-* **Requires PHP:** 7.2
-* **Stable Tag:** 2.0.5
-* **License:** GPL-2.0-or-later
-* **License URI:** http://www.gnu.org/licenses/gpl-2.0.txt
+=== WA Timetable (Tokyo 2025) ===
 
-# WA Timetable (Tokyo 2025)
-Displays the official 2025 World Athletics Championships timetable from Tokyo, Japan. Times are converted by default from Tokyo to Jamaican time, with options for more time zones in the settings page.
+Contributors: smoothdesigns
+Tags: timetable, athletics, sports, schedule, events, tokyo 2025, world championships
+Requires at least: 5.3
+Tested up to: 6.8.2
+Requires PHP: 7.2
+Stable tag: 3.9.4
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
----
+WA Timetable is a lightweight and user-friendly WordPress plugin designed to display the official timetable for the World Athletics Championships in Tokyo. Whether you're a sports fan or a professional event organizer, this plugin provides a simple way to showcase schedules and events in a clear, accessible format.
 
-## Description
-WA Timetable is a lightweight and user-friendly WordPress plugin designed to display stylish timetables on your website. Whether you're a sports fan or a professional event organizer, this plugin provides a simple way to showcase schedules and events in a clear, accessible format.
+== Description ==
 
-* **Fully Responsive**: Timetables look great on any device, from desktop computers to mobile phones.
-* **Customizable**: Easily change the look and feel of your timetable to match your website's theme via the plugin settings.
-* **Shortcode Integration**: Simply use a shortcode to embed the timetable on any page or post.
+This plugin fetches live data from the World Athletics website to display an accurate, up-to-the-minute timetable for the 2025 Championships in Tokyo. It automatically converts event times to Jamaican time, providing a seamless experience for a Jamaican audience. The timetable is fully responsive and organized into daily tabs and collapsible sessions for easy navigation.
 
----
+Features:
 
-## Installation
-1.  Download the plugin ZIP file.
-2.  In your WordPress admin dashboard, go to **Plugins > Add New**.
-3.  Click the **"Upload Plugin"** button.
-4.  Choose the downloaded ZIP file and click **"Install Now"**.
-5.  After the installation is complete, click **"Activate Plugin"**.
+* **Live Data Feed**: Automatically updates with the latest schedule and results.
+* **Jamaica Time Conversion**: All times are converted from Tokyo to Jamaican time (GMT-5).
+* **Responsive Design**: Timetables look great on any device, from desktop computers to mobile phones.
+* **Session Organization**: Events are grouped by daily sessions (Morning/Evening) for clarity.
+* **Status Indicators**: Events show live status (`LIVE`), or link to `Results` or `Startlist`.
+* **Shortcode Integration**: Easily embed the timetable on any page or post using the `[wa_timetable]` shortcode.
+* **Automatic GitHub Updates**: The plugin automatically checks for and installs updates from the GitHub repository.
 
----
+== Installation ==
 
-## Screenshots
-1.  This is a screenshot of the timetable displayed on a page.
+1.  Upload the `wa-timetable` folder to the `/wp-content/plugins/` directory.
+2.  Activate the plugin through the 'Plugins' menu in WordPress.
+3.  Add the shortcode `[wa_timetable]` to any page, post, or widget where you want the timetable to appear.
+4.  That's it! The timetable will automatically appear.
 
----
+== Screenshots ==
 
-## Changelog
-### 2.0.5
-* Refactored core plugin file to introduce a new constant for the assets folder.
-* Updated all enqueue URLs to use the new asset constant for better file path management.
+1. The responsive timetable view with daily tabs.
+2. The timetable showing a live session with event status.
+3. An individual event section with live badges and links.
 
-### 2.0.4
-* Relocated CSS and JS folders to the assets directory, and adjusted the enqueue URLs accordingly.
+== Changelog ==
 
-### 2.0.3
-* Resolved "Plugin not found" error by fixing an object-to-array conversion issue.
-* Added support for banners by updating readme.txt format and PHP parsing logic.
-* Corrected text formatting and list display issues in the "View details" page.
-* Eliminated the duplicate "View details" link.
-* Updated GitHub username from smoothdeisgns to **smoothdesigns**.
+= 3.9.4 =
+* **FIXED:** Corrected the GitHub updater URL to `raw.githubusercontent.com` to resolve the "Plugin not found" error when viewing plugin details.
+* **FIXED:** Updated the code to properly handle the `reset()` function, fixing the "Only variables can be passed by reference" fatal error on modern PHP versions.
 
-### 2.0.2
-* Switched to self-contained GitHub updater class.
-* Removed external dependency to plugin-update-checker library.
-
-### 2.0.1
-* Fixed a bug where a non-existent timetable URL would break the plugin.
-
-### 2.0.0
-* Major release to support the 2025 World Athletics Championships in Tokyo.
-* Timetable data is now fetched and parsed dynamically from the official website.
-* Added settings page for customization of timezones and session names.
-
----
-
-## Contribution
-We welcome contributions! If you have suggestions for improvements or want to report a bug, feel free to open a pull request or an issue on the GitHub repository.
-
----
-
-## Support
-If you have any questions or run into any issues, please open an issue on the GitHub repository.
+= 3.9.3 =
+* Initial release of the WA Timetable (Tokyo 2025) plugin.
