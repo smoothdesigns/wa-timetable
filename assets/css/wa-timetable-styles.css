@@ -5,7 +5,6 @@
  *
  * @format
  */
-
 /* Global and Navigation */
 .wa-timetable-container ul.nav-tabs,
 .wa-timetable-container ul.nav-pills,
@@ -18,6 +17,9 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+.today-text {
+	color: black !important;
 }
 /* Accordion and Session Headers */
 .accordion-button {
@@ -37,35 +39,35 @@
 /* Events List and Items */
 .events-list {
 	background-color: #f5f6f7;
-	padding: 10px;
+	padding: 8px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
 }
 .event-item {
-	padding: 8px 10px;
+	padding: 8px;
 	border-radius: 6px;
-	border: 2px solid transparent;
+	border: 2px solid #cfd0ff;
 	transition: background-color 0.2s ease-in-out;
 	background-color: #fff;
 }
 .event-item:hover,
 .event-item:focus,
 .event-item:active {
-	border: 2px solid #cfe2ff;
+	border: 2px solid lightgreen;
 	background-color: #f5f6f7;
 }
 /* Event Details and Links */
 .event-item-content {
 	display: grid;
 	justify-content: space-between;
-	grid-template-columns: 60% 40%;
+	grid-template-columns: 70% 30%;
 }
 .event-details-left {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 5px;
 	width: 100%;
 	justify-content: space-between;
 }
@@ -79,7 +81,7 @@
 	font-weight: bold;
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: 8px;
 	max-height: 20px;
 }
 .pulse-circle {
@@ -115,13 +117,18 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
-	gap: 4px;
+	gap: 5px;
 	justify-content: space-between;
+}
+.event-livetime-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 5px;
 }
 .event-links {
 	display: flex;
 	flex-direction: row;
-	gap: 4px;
+	gap: 5px;
 }
 .event-links a {
 	color: #663399;
@@ -149,7 +156,6 @@
 	background-color: black;
 	color: white;
 }
-
 /* Utility and Responsive */
 .wa-timetable-error {
 	color: #dc3545;
