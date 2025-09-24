@@ -5,7 +5,7 @@ Tags: timetable, athletics, sports, schedule, events, tokyo 2025, world champion
 Requires at least: 5.3
 Tested up to: 6.8.2
 Requires PHP: 7.2
-Stable tag: 3.9.4
+Stable tag: 3.9.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,10 +27,10 @@ Features:
 
 == Installation ==
 
-1.  Upload the `wa-timetable` folder to the `/wp-content/plugins/` directory.
-2.  Activate the plugin through the 'Plugins' menu in WordPress.
-3.  Add the shortcode `[wa_timetable]` to any page, post, or widget where you want the timetable to appear.
-4.  That's it! The timetable will automatically appear.
+1.  Upload the `wa-timetable` folder to the `/wp-content/plugins/` directory.
+2.  Activate the plugin through the 'Plugins' menu in WordPress.
+3.  Add the shortcode `[wa_timetable]` to any page, post, or widget where you want the timetable to appear.
+4.  That's it! The timetable will automatically appear.
 
 == Screenshots ==
 
@@ -39,6 +39,9 @@ Features:
 3. An individual event section with live badges and links.
 
 == Changelog ==
+
+= 3.9.5 =
+* IMPROVED: Refactored the plugin's code by separating core classes (Data_Extractor, Processor, View) into individual files for better manageability and organization.
 
 = 3.9.4 =
 * **FIXED:** Corrected the GitHub updater URL to `raw.githubusercontent.com` to resolve the "Plugin not found" error when viewing plugin details.
